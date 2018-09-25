@@ -27,4 +27,5 @@ bsp <- function(support, centeringMeasure, precision) {
 
   structure(list(support=support, centeringMeasure=centeringMeasure,
                  precision=precision), class="betaStacyProcess")
+
 }
