@@ -13,19 +13,15 @@
 #' bsp(c(1,5),c(0.2,0.4),c(2,1))
 #'
 #'
-bsp <- function(support, centeringMeasure, precision) {
+bspPosterior <- function(bspPriorObject, data) {
 
   # Add checks to ensure the input is valid
-  # support is a numeric vector (sorted)
-  # centeringMeasure is a vector of the same length as support all numbers must be in [0,1]
-  #     and nondecreasing
-  #     An alternate input is a CDF function that will be evaluated at the
-  #     support points
-  # precision is a nonnegative vector of numeric values and should be the same length as support
-  #     if only one number is supplied it is replicated n times
-  #    should these be nonincreasing???????
+  # check bspPriorObject is a bsp object
+  # check data has observation times and censoring info (if not then censoring info is assumed??)
 
-  structure(list(support=support, centeringMeasure=centeringMeasure,
-                 precision=precision), class="betaStacyProcess")
+
+  # need a lot more here
+
+  return(bspPriorObject)
 
 }
