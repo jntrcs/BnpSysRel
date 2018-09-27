@@ -24,4 +24,5 @@ bspPosterior <- function(bspPriorObject, data) {
 
   return(bspPriorObject)
 
+
 }
