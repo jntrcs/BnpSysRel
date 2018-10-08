@@ -23,6 +23,15 @@ bsp <- function(support, centeringMeasure, precision) {
   #     if only one number is supplied it is replicated n times
   #    should these be nonincreasing???????
 
+  if (any(!support==sort(support))) stop("support should be an increasing series of time points")
+  if (is.function(centeringMeasure)){
+    centeringMeasure<-centeringMeasure(support)
+  }
+  if (length(centeringMeasure)!=length(support))stop("centeringMeasure and support length differ")
+  if(any(centeringMeasure>1 |centeringMeasure<0))stop("All centeringMeasure points must be between 0 and 1")
+  if(length(precision)==1)precision<-rep(precision, length(support))
+  if (length(precision)!=length(support))stop("precision and support length differ")
+
   structure(list(support=support, centeringMeasure=centeringMeasure,
                  precision=precision), class="betaStacyProcess")
 }
