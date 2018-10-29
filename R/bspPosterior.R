@@ -27,43 +27,35 @@ bspPosterior <- function(bspPriorObject, data) {
 
 
   #####COMPUTATION
-  times<-data[,1]
-  C = data[,2] #C as used in the paper
+  make_calculator<-function(prior_alpha, prior_ts, prior_gs, data, censor){
+    if (any(data!=sort(data)))stop("Data must be sorted (increasing)")
+    m<-function(data, t) sapply(t, FUN=function(x) sum(data>=x))
+    j<-function(data, censor, t) sapply(t, FUN=function(x) sum(censor*(data==x)))
+    prior_g<-function(t)sapply(t, FUN=function(t)c(0,prior_gs)[sum(prior_ts<=t)+1])
+    single_t<-function(t){
+      previous<-unique(data[data<=t & censor])
+      previous<-sort(unique(c(previous, prior_ts[prior_ts<=t])))
+      if(length(previous)==0) {
+        previous=0
+      }
+      prior_at_prev<-prior_alpha(previous)
+      g = 1-prod(1-(prior_at_prev*(prior_g(previous)-prior_g(previous-.00001)) +j(data, censor, previous))/
+                   (prior_at_prev*(1-prior_g(previous-.00001))+m(data, previous)))
+      alpha = (prior_alpha(t)*(1-prior_g(t))+m(data, t)-j(data, censor, t))/(1-g)
 
-  get_base<-function(BSP, t){
-    a=which(t>=BSP$support)
-    if(length(a)==0)return(0)
-    return(BSP$centeringMeasure[max(a)])
+      return(list(CenteringMeasure=g, Alpha=alpha))
+    }
+    function(ts){
+      a=sapply(ts, FUN=single_t)
+      return(list(centeringMeasures=as.numeric(a[1,]), Precisions=as.numeric(a[2,]), support=ts))
+    }
   }
+  calc<-make_calculator(bspPriorObject$evaluate_alpha, bspPriorObject$support,
+                        bspPriorObject$centeringMeasure, data[,1], data[,2])
 
-  get_precision<-function(BSP, t){
-    BSP$precision[max(which(t>=BSP$support))]
-  }
-
-  ts<-sort(unique(c(bspPriorObject$support,times)))
-  M<-function(t){
-    sum(times>=t)
-  }
-  J<-function(t){
-    if (t==0)return(0) #What should this be?
-    return(sum(as.numeric(times*C==t)))
-  }
-  runningProd=1
-  centeringMeasure=rep(0, length(ts))
-  precision<-rep(0, length(ts))
-  for (i in 1:length(ts)){
-    t<-ts[i]
-    alpha_T<-get_precision(bspPriorObject,t)
-    tMinusOne = ifelse(i==1, 0, ts[i-1])
-    centeringMeasure_T=get_base(bspPriorObject, t)
-    centeringMeasureTMinusOne=get_base(bspPriorObject, tMinusOne)
-    M_T<-M(t)
-    J_T<-J(t)
-    runningProd = runningProd* (1-(alpha_T*(centeringMeasure_T- centeringMeasureTMinusOne)+J_T)/
-                                  (alpha_T*(1-centeringMeasureTMinusOne)+M_T))
-    centeringMeasure[i]<-1-runningProd
-    precision[i]<- (alpha_T*(1-centeringMeasure_T) + M_T -J_T)/(1-centeringMeasure[i])
-  }
-  return(bsp(support = ts, centeringMeasure = centeringMeasure, precision = precision))
+  alpha<-function(ts)calc(ts)$Precisions
+  support = unique(sort(c(bspPriorObject$support, data[,1])))
+  centeringMeasure = calc(support)$centeringMeasures
+  return(bsp(support, centeringMeasure, alpha))
 
 }
