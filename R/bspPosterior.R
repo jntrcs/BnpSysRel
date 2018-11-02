@@ -59,3 +59,29 @@ bspPosterior <- function(bspPriorObject, data) {
   return(bsp(support, centeringMeasure, alpha))
 
 }
+
+
+#'Creates a matrix where each column represents a sampled CDF from the provided BSP
+#'
+#'@param BSP Any BSP object
+#'@param reps Number of samples to draw, default 10000
+#'
+#'@return A matrix. Each column can be plotted against the BSP's support to view a sampled CDF from the BSP
+#'@export
+#'
+bsp_sampling<-function(BSP, reps=10000){
+  draws<-matrix(0,ncol = reps, nrow=length(BSP$support))
+  firstTime<-BSP$support[1]
+  alpha1=BSP$evaluate_alpha(firstTime)*BSP$centeringMeasure[1]
+  beta1=BSP$evaluate_alpha(firstTime)*(1-BSP$centeringMeasure[1])
+  draws[1,]<-rbeta(reps, alpha1, beta1)
+  for (i in 2:length(BSP$support)){
+    prec<-BSP$evaluate_alpha(BSP$support[i])
+    alphak<-prec*(BSP$centeringMeasure[i]-BSP$centeringMeasure[i-1])
+    betak=prec*(1-(BSP$centeringMeasure[i]))
+    epsk<-1-draws[i-1,]
+    #if (any(epsk>1 | epsk<0))print(i)
+    draws[i,]<-draws[i-1,]+rbeta(reps, alphak, betak)*epsk
+  }
+  draws
+}
