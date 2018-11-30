@@ -9,8 +9,7 @@
 #'
 #'
 print.betaStacyProcess<-function(x){
-  res=data.frame(lapply(x[1:2], FUN=as.numeric))
-  res$alpha<-x$evaluate_alpha(res$support)
+  res=data.frame(lapply(x[1:3], FUN=as.numeric))
   res
 }
 

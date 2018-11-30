@@ -25,7 +25,6 @@ bspPosterior <- function(bspPriorObject, data) {
   ####ARRANGING DATA
 
 
-
   #####COMPUTATION
   make_calculator<-function(prior_alpha, prior_ts, prior_gs, data, censor){
     if (any(data!=sort(data)))stop("Data must be sorted (increasing)")
@@ -50,13 +49,18 @@ bspPosterior <- function(bspPriorObject, data) {
       return(list(centeringMeasures=as.numeric(a[1,]), Precisions=as.numeric(a[2,]), support=ts))
     }
   }
-  calc<-make_calculator(bspPriorObject$evaluate_alpha, bspPriorObject$support,
+  calc<-make_calculator(function(x)evaluate_precision(bspPriorObject, x), bspPriorObject$support,
                         bspPriorObject$centeringMeasure, data[,1], data[,2])
 
-  alpha<-function(ts)calc(ts)$Precisions
+
   support = unique(sort(c(bspPriorObject$support, data[,1])))
-  centeringMeasure = calc(support)$centeringMeasures
-  return(bsp(support, centeringMeasure, alpha))
+  newMeasures<-calc(support)
+  centeringMeasure = newMeasures$centeringMeasures
+  alpha<-newMeasures$Precisions
+  precisionAfter<-alpha
+  measuresAfter<-calc(support+.00001)
+  precisionAfter<-measuresAfter$Precisions
+  return(makeBSP(support, centeringMeasure, alpha,precisionAfter))
 
 }
 

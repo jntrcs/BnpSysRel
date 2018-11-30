@@ -1,10 +1,12 @@
 ##Tests
-a=bsp(c(.5,5), centeringMeasure = c(.1,.9), precision = .001)
+a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 1:3)
+evaluate_precision(a, seq(.5, 3.5, by=.5))
+
 plot(a)
 a
 print(a)
-a$evaluate_alpha(0:6)
-a$evaluate_g(0:6)
+
+evaluate_centering_measures(a, seq(.5, 3.5, by=.5))
 
 data<-matrix(c(1, 1,
                2.2, 1,
@@ -13,8 +15,7 @@ data<-matrix(c(1, 1,
 
 b=bspPosterior(a, data)
 plot(b)
-plot(b$precision~b$support, ylim=c(2.8, 3.2), type='l')
-b
+print(b)
 
 datac<-matrix(c(1, 1,
                2, 0,
@@ -22,10 +23,33 @@ datac<-matrix(c(1, 1,
 ), byrow=T, ncol=2)
 
 ce=bspPosterior(a, datac)
-plot(ce)
-plot(ce$precision~ce$support, type='l')
 ce
+evaluate_precision(ce, c(1.9,2,2.1))
 
+
+
+#Example 1 from paper
+prior = bsp(support=c(0,2), c(0, .8), precision=.00000000)
+data<-matrix(c(1, 1,
+               2,1,
+               3, 1
+), byrow=T, ncol=2)
+posterior<-bspPosterior(prior, data)
+seq(0, 4.5, by=.5)
+evaluate_precision(posterior, seq(0, 4.5, by=.5))
+evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+
+#Example 2 from paper
+prior = bsp(support=c(0,2,4), c(0, .8,.991), precision=.00000000)
+data<-matrix(c(1, 1,
+               2,1,
+               2,0,
+               3, 1
+), byrow=T, ncol=2)
+posterior<-bspPosterior(prior, data)
+seq(0, 4.5, by=.5)
+evaluate_precision(posterior, seq(0, 4.5, by=.5))
+evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
 
 ###EXAMPLE 3 FROM OVERLEAF
 prior = bsp(support=c(0,2), c(0, .8), precision=1)
@@ -35,10 +59,62 @@ data<-matrix(c(1, 1,
                3, 1
 ), byrow=T, ncol=2)
 posterior<-bspPosterior(prior, data)
-posterior$evaluate_alpha(seq(0, 3.5, by=.5))
-posterior$evaluate_g(seq(0, 3.5, by=.5))
+seq(0, 4.5, by=.5)
+evaluate_precision(posterior, seq(0, 4.5, by=.5))
+evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+post_draws<-BSP_sampling(posterior)
+posterior$support<-c(0:3, 3.1)
+posterior$centeringMeasure<-c(0, .2,.76,.76,.76)
 ##Matches what is in the paper
 
+#Example 4 from paper
+prior = bsp(support=c(0,2), c(0,.5), precision=c(1,2))
+data<-matrix(c(1, 1,
+               2,1,
+               2,0,
+               3, 1
+), byrow=T, ncol=2)
+posterior<-bspPosterior(prior, data)
+seq(1.5, 2.5, by=.5)
+evaluate_precision(posterior, seq(1.5, 2.5, by=.5))
+evaluate_centering_measures(posterior,seq(1.5, 2.5, by=.5))
+
+#Experiment: look at the variance of F(T=3) for the cases where there is a censored
+#observation at 2, a fully observed obs at two, and nothing at two
+
+#Nothing
+prior = bsp(support=c(0,3.5), c(0, ), precision=.1)
+data<-matrix(c(1, 1,
+               3, 1,
+               3.5,1
+), byrow=T, ncol=2)
+posterior1<-bspPosterior(prior, data)
+post_draws1<-bsp_sampling(posterior1)
+var(post_draws1[4,])
+
+#censored
+prior = bsp(support=c(0,3.5), c(0, ), precision=.1)
+data<-matrix(c(1, 1,
+               2,0,
+               2,1,
+               3, 1,
+
+
+), byrow=T, ncol=2)
+posterior2<-bspPosterior(prior, data)
+post_draws2<-bsp_sampling(posterior2)
+var(post_draws2[4,])
+
+#Fully observed
+prior = bsp(support=c(0,2,4), c(0, .8,1), precision=1)
+data<-matrix(c(1, 1,
+               2,1,
+               3, 1,
+               3.5,1
+), byrow=T, ncol=2)
+posterior3<-bspPosterior(prior, data)
+post_draws3<-bsp_sampling(posterior3)
+var(post_draws3[4,])
 
 a=(bspPosterior(posterior, datac))
 for (i in 1:5){
