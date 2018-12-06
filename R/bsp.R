@@ -26,21 +26,27 @@ bsp <- function(support, centeringMeasure, precision) {
   # precision is a nonnegative vector of numeric values and should be the same length as support
   #     if only one number is supplied it is replicated n times
   #    should these be nonincreasing???????
-
+  if (min(support)!=0){
+    support<-c(0, support)
+    centeringMeasure<-c(0, centeringMeasure)
+  }
+  if (!is.numeric(precision)| length(precision)!=1)
+    stop("Precision must be a single number")
+  precision<-rep(precision, length(support))
   if (any(!support==sort(support))) stop("support should be an increasing series of time points")
   if (is.function(centeringMeasure)){
     centeringMeasure<-centeringMeasure(support)
   }
   if (length(centeringMeasure)!=length(support))stop("centeringMeasure and support length differ")
   if(any(centeringMeasure>1 |centeringMeasure<0))stop("All centeringMeasure points must be between 0 and 1")
-  if (is.function(precision)){
-    precision<-precision(support)
-    if (length(precision)!=length(support))stop("Precision function must evaluate to same length as support")
+  #if (is.function(precision)){
+   # precision<-precision(support)
+    #if (length(precision)!=length(support))stop("Precision function must evaluate to same length as support")
 
-  }
-  if (length(precision)==1){
-    precision <- rep(precision, length(support))
-  }
+  #}
+  #if (length(precision)==1){
+   # precision <- rep(precision, length(support))
+  #}
 
   precisionAfter=precision
 
@@ -95,7 +101,6 @@ evaluate_precision<-function(bsp, times){
   support<-bsp$support
   precisionAt<-bsp$precisionAt
   precisionAfter<-bsp$precisionAfter
-  jumpDown<-bsp$jumpDown
   sapply(times, FUN=function(time){
     if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
       return(0.0001)}else{
