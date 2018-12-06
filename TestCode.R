@@ -1,5 +1,5 @@
 ##Tests
-a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 1:3)
+a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
 evaluate_precision(a, seq(.5, 3.5, by=.5))
 
 plot(a)
@@ -38,6 +38,7 @@ posterior<-bspPosterior(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
 evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+E1E2(posterior)
 
 #Example 2 from paper
 prior = bsp(support=c(0,2,4), c(0, .8,.991), precision=.00000000)
@@ -50,6 +51,7 @@ posterior<-bspPosterior(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
 evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+E1E2(posterior)
 
 ###EXAMPLE 3 FROM OVERLEAF
 prior = bsp(support=c(0,2), c(0, .8), precision=1)
@@ -62,9 +64,9 @@ posterior<-bspPosterior(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
 evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
-post_draws<-BSP_sampling(posterior)
-posterior$support<-c(0:3, 3.1)
-posterior$centeringMeasure<-c(0, .2,.76,.76,.76)
+E1E2(posterior)
+
+
 ##Matches what is in the paper
 
 #Example 4 from paper
@@ -78,7 +80,7 @@ posterior<-bspPosterior(prior, data)
 seq(1.5, 2.5, by=.5)
 evaluate_precision(posterior, seq(1.5, 2.5, by=.5))
 evaluate_centering_measures(posterior,seq(1.5, 2.5, by=.5))
-
+E1E2(posterior)
 #Experiment: look at the variance of F(T=3) for the cases where there is a censored
 #observation at 2, a fully observed obs at two, and nothing at two
 
@@ -180,5 +182,10 @@ with_prior_example(3.4)
 with_prior_example(3.6)
 
 
-
-
+##
+data=sort(rgamma(1000, 5,5))
+prior<-bsp(c(0, 5), centeringMeasure=c(0, .99), precision=.1)
+posterior=bspPosterior(prior, cbind(data,1))
+draws=bspSamples(posterior, reps=100)
+matplot(x=posterior$support, draws, type='l')
+curve(pgamma(x,5,5), lwd=5,add=T, col="yellow")
