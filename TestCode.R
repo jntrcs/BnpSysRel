@@ -84,6 +84,13 @@ E1E2(posterior)
 #Experiment: look at the variance of F(T=3) for the cases where there is a censored
 #observation at 2, a fully observed obs at two, and nothing at two
 
+##Example 5 from paper
+prior = bsp(c(0,4), c(0,.9), precision=0)
+data<-matrix(c(1,1,
+               2,0,
+               3,0), byrow = T, ncol=2)
+posterior<-bspPosterior(prior,data)
+
 #Nothing
 prior = bsp(support=c(0,3.5), c(0, ), precision=.1)
 data<-matrix(c(1, 1,
@@ -183,9 +190,11 @@ with_prior_example(3.6)
 
 
 ##
-data=sort(rgamma(1000, 5,5))
+data=sort(rlnorm(1000, 5,.2))
 prior<-bsp(c(0, 5), centeringMeasure=c(0, .99), precision=.1)
 posterior=bspPosterior(prior, cbind(data,1))
-draws=bspSamples(posterior, reps=100)
+draws=bspSamples(posterior, reps=1000)
 matplot(x=posterior$support, draws, type='l')
-curve(pgamma(x,5,5), lwd=5,add=T, col="yellow")
+curve(plnorm(x,5,.2), lwd=5,add=T, col="yellow")
+m<-apply(draws, 1, mean)
+lines(m~posterior$support, lwd=5, col="limegreen")

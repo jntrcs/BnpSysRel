@@ -1,5 +1,21 @@
 ##BSPSampling.R
 
+#' Obtains realizations of a bsp
+#'
+#' @param bsp The bsp object
+#' @param reps Number of realizations to return
+#'
+#' @return Returns an length(support) x reps matrix. Each column corresponds to a valid discrete CDF drawn from the bsp.
+#' @export
+#'
+#' @examples
+#' bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
+#' samples=bspSamples(bsp)
+#' #To visualize
+#' matplot(samples, bsp$support, type='l')
+#'
+#'
+
 bspSamples<-function(bsp, reps=10000){
   draws<-matrix(0,ncol = reps, nrow=length(bsp$support))
   alpha1=bsp$precisionAt[1]*bsp$centeringMeasure[1]
@@ -14,6 +30,6 @@ bspSamples<-function(bsp, reps=10000){
   }
   draws
 }
-a=bspSamples(bsp, reps=15)
-matplot(a, type="l")
+#a=bspSamples(bsp, reps=15)
+#matplot(a, type="l")
 

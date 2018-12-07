@@ -2,6 +2,10 @@
 
 S3method(plot,betaStacyProcess)
 S3method(print,betaStacyProcess)
+export(E1E2)
 export(bsp)
 export(bspPosterior)
+export(bspSamples)
 export(bsp_sampling)
+export(evaluate_centering_measures)
+export(evaluate_precision)
