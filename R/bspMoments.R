@@ -5,13 +5,13 @@
 #'
 #' @param bsp The bsp object
 #'
-#' @return what should this be??
+#' @return bsp with new attribute indicating the second moment
 #' @export
 #'
 #' @examples
 #' bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
-#' E1E2(bsp)
-#'
+#' bsp=E1E2(bsp)
+#' bsp
 #'
 E1E2 <- function(bsp) {
 
@@ -26,9 +26,40 @@ E1E2 <- function(bsp) {
   #E2[is.nan(E2)] <- 0
 
   ## Return list E1, E2, and times
-  return( data.frame(E1=base, E2=c(0, E2)))
+  bsp$E2<-c(0, E2)
+  return(bsp)
 
 }
+
+#' Creates a bsp with given moments at each spot on the support
+#'
+#' @param E1 The first moment
+#' @param E2 The second moment
+#' @param support The times for the first and second moments (all vectors equal length)
+#'
+#' @return A bsp object with those moments
+#' @export
+#'
+#' @examples
+#' bsp=bspFromMoments(c(.2, .4,.8), c(.5, .5, .5), 1:3)
+#' bsp
+#'
+#'
+bspFromMoments <- function(E1, E2, support) {
+
+  pE1 <- c(0,E1[-length(support)])
+  pE2 <- c(0,E2[-length(support)])
+
+  ## Precision
+  prec <- ((pE2-2*pE1+1)*(1-E1)-(E2-2*E1+1)*(1-pE1))/((E2-2*E1+1)*(1-pE1)^2-(pE2-2*pE1+1)*(1-E1)^2)
+  ## Return list base, prec, and times
+
+  for (i in 1:length(support)) {if(is.nan(prec[i])) {prec[i]=0
+  print("NAN in bspFromMoments()")}}
+  return(bsp(support, E1, prec, calculateMoments = T))
+
+}
+
 
 #b=E1E2(bsp)
 #varx = b$E2 - b$E1^2

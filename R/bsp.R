@@ -15,7 +15,7 @@
 #'
 #'
 #'
-bsp <- function(support, centeringMeasure, precision) {
+bsp <- function(support, centeringMeasure, precision, calculateMoments=FALSE) {
 
   # Add checks to ensure the input is valid
   # support is a numeric vector (sorted)
@@ -55,10 +55,13 @@ bsp <- function(support, centeringMeasure, precision) {
   #centeringMeasure<-c(0, centeringMeasure)
   #support<-c(0, support)
   #includePoint=rep(c(T,F), 100)[1:length(support)]
-  makeBSP(support, centeringMeasure, precision, precisionAfter)
-
+  bsp =makeBSP(support, centeringMeasure, precision, precisionAfter)
+  if (calculateMoments)
+    bsp=E1E2(bsp)
+  return(bsp)
 }
 
+#@export
 makeBSP<-function(support, centeringMeasure, precision, precisionAfter){
   structure(list(support=support, centeringMeasure=centeringMeasure,
                  precisionAt=precision, precisionAfter=precisionAfter,

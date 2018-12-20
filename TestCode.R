@@ -1,5 +1,6 @@
 ##Tests
-a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
+a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2, calculateMoments = T)
+b=bspSamples(a, 100)
 evaluate_precision(a, seq(.5, 3.5, by=.5))
 
 plot(a)
@@ -190,8 +191,8 @@ with_prior_example(3.6)
 
 
 ##
-data=sort(rlnorm(1000, 5,.2))
-prior<-bsp(c(0, 5), centeringMeasure=c(0, .99), precision=.1)
+data=sort(rlnorm(500, 5,.2))
+prior<-bsp(c(0, 500), centeringMeasure=c(0, .99), precision=.1)
 posterior=bspPosterior(prior, cbind(data,1))
 draws=bspSamples(posterior, reps=1000)
 matplot(x=posterior$support, draws, type='l')
