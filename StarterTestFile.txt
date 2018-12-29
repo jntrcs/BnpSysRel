@@ -1,0 +1,2 @@
+P(Generator, Generator):PowerSupply
+S(PowerSupply, Ignition):Starter

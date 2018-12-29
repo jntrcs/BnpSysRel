@@ -13,6 +13,7 @@ data<-matrix(c(1, 1,
                2.2, 1,
                3, 1
               ), byrow=T, ncol=2)
+a=createUninformativePrior(data)
 
 b=bspPosterior(a, data)
 plot(b)

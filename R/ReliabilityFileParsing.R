@@ -1,7 +1,6 @@
 require(stringr)
 
 text=suppressWarnings(readLines("sampleParse.txt"))
-text
 text=str_replace_all(text, " ", "")
 
 #Checks to see if valid
@@ -59,10 +58,11 @@ while(any(!done)){
 #' @param priorList A list with named elements containing bsp object representing the prior for each component in the reliability diagram
 #' @param dataList A list with named elements for each component or subsystem for which reliability was measured
 #'
-#' @return A named list of posterior bsp objects, one for each named component in the system.
+#' @return A named list of posterior bsp objects, one for each named component in the system
+#' (if no data was provided the posterior will be equivalent to the provided prior)
 #' @export
 #'
-#' @section Details:
+#' @section file Details:
 #' The file is a text file specifying your reliability block diagram. Parallel and series subsystems can be specified as in the following example:
 #'
 #' S(Engine, GasDelivery):GasPropulsion
@@ -96,9 +96,147 @@ while(any(!done)){
 #' For example, Propulsion cannot be used as an input to GasPropulsion because GasPropulsion
 #' is an input to Propulsion
 #'}
-#' @examples
 #'
+#'@section priorList Details:
+#'The priorList contains the bsp prior objects used as objects for the components.
+#'For example, if "valve" is a component appearing only on the left hand side of a relationship
+#'in the reliability diagram, priorList$valve must contain a betaStaceyProcess object
+#'representing the prior. These objects can be specified with the bsp() function.
+#'Objects appearing on the right hand side of a relationship do not need a prior, as
+#'their prior will be computed from the posteriors of the component pieces.
+#'If a prior is not provided for a LHS component, a non-informative prior will be
+#'created and used, with a warning.
+#'
+#'@section dataList Details:
+#'A dataList element should be provided for any component on which data has been gathered.
+#'Each dataList element (eg dataList$valve) should be a nx2 matrix with the first column
+#'being the observed failurer time (or end or test) and the second column contains the censoring variable
+#'0 - if right censored 1 - if fully observed.
+#'
+#'Any object for which data is provided will have a new bsp object computed as the
+#'posterior of the prior and the provided data.
+#'
+#'
+#' @examples
+#' file="ReliabilityDiagram.txt"
+#' write.table("S(Engine, GasDelivery):GasPropulsion", file=file, quote=F, row.names=F, col.names=F)
+#' priorList<-list(Engine = bsp(1, .5, 1), GasDelivery=bsp(3,.6, 1))
+#' dataList<-list(Engine=matrix(c(2, 1, 3, 0), byrow=T, nrow=2),
+#' GasDelivery=matrix(c(5, 1, 6, 1), byrow=T, nrow=2))
 estimateSystemReliability<-function(file, priorList, dataList){
+
+  require(stringr)
+
+  text=suppressWarnings(readLines(file))
+  if(length(text)==0)stop("Text file contained 0 elements")
+  text=str_replace_all(text, " ", "")
+
+  #Checks to see if valid
+  if(!all(str_sub(text, 1, 2) %in% c('p(', 'P(', 's(', 'S(')))stop("All expressions must start with P( or S(")
+
+
+  #Makes sure the pattern after the opening parenthesis is #,#,#,....):#
+  if(!(all(str_detect(str_sub(text, 3), pattern = "^([a-zA-Z0-9]+,)+[a-zA-Z0-9]+\\):[a-zA-Z0-9]+$"))))
+    stop("One or more strings did not meet grammar requirements (eg. P(1,2,3):4)")
+
+  #http://stla.github.io/stlapblog/posts/Numextract.html
+  wordExtract <- function(string){
+    middle=str_sub(str_extract(string, '\\([a-zA-Z0-9,]+\\)'),2,-2)
+    middleWords<-unlist(strsplit(middle, ','))
+    endWord=str_sub(str_extract(string, ":[a-zA-Z0-9]+"), 2, -1)
+    return(c(middleWords, endWord))
+  }
+
+  ##The first time through we will see if it is logically defined
+  #The 2nd time through we will perform the computations
+  needsBuilt<-str_sub(str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
+  if (length(needsBuilt)!=length(unique(needsBuilt)))stop("Non-unique definitions given to component (check right side of colon for non-unique values)")
+  #Anything is ready if it is not on the RHS of a definition
+  ready<-setdiff(wordExtract(text), needsBuilt)
+  #Require list of priors
+  #Require list of data
+
+  done<-rep(F, length(text))
+  i=0
+  oneChange=FALSE
+  while(any(!done)){
+    i=i+1
+    if (i > length(text) &!oneChange)stop("The diagram specified contains circular relationships that makes the model impossible")
+    else if (i>length(text) &oneChange){
+      i =1
+      oneChange=FALSE
+    }
+    if (done[i]) next
+    compNeeded <- wordExtract(text[i])
+    Name<-compNeeded[length(compNeeded)]
+    compNeeded<-compNeeded[-length(compNeeded)]
+    if (all(compNeeded%in% ready)){
+      ##We are ready to perform the computations needed in order to provide the prior for Name
+      needsBuilt<-setdiff(needsBuilt, Name)
+      ready<-c(ready, Name)
+      oneChange=TRUE
+      done[i]<-TRUE
+    }
+  }
+
+
+  #2nd time through
+  needsBuilt<-str_sub(str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
+  #Anything is ready if it is not on the RHS of a definition
+  ready<-setdiff(wordExtract(text), needsBuilt)
+  posteriorList<-list()
+
+  for (comp in ready){
+    if(is.null(priorList[[comp]])){
+      warning(paste0("No prior provided for ", comp, ". A non-informative prior was created"))
+      if (is.null(dataList[[comp]]))stop(paste("No prior or data provided for component", comp))
+      priorList[[comp]]<-createUninformativePrior(dataList[[comp]])
+    }
+    if (!is.null(dataList[[comp]])){
+      posteriorList[[comp]]<-bspPosterior(priorList[[comp]], dataList[[comp]])
+    }else{
+      posteriorList[[comp]]<-priorList[[comp]]
+    }
+  }
+  #Require list of priors
+  #Require list of data
+  done<-rep(F, length(text))
+  i=0
+  oneChange=FALSE
+  while(any(!done)){
+    i=i+1
+    if (i>length(text) &oneChange){
+      i =1
+      oneChange=FALSE
+    }
+    if (done[i]) next
+    compNeeded <- wordExtract(text[i])
+    Name<-compNeeded[length(compNeeded)]
+    compNeeded<-compNeeded[-length(compNeeded)]
+    if (all(compNeeded%in% ready)){
+      ##We are ready to perform the computations needed in order to provide the prior for Name
+
+
+      ###As a placeholder, just create an uninformative prior for each subsystem
+      #Remove these lines later
+      if(!is.null(dataList[[Name]])) data<-dataList[[Name]] else data<-matrix(c(1,1), byrow=T, nrow=T)
+      priorList[[Name]]<-createUninformativePrior(data)
+      ####################
+
+
+      needsBuilt<-setdiff(needsBuilt, Name)
+      ready<-c(ready, Name)
+      oneChange=TRUE
+      done[i]<-TRUE
+      if (!is.null(dataList[[Name]])){
+        posteriorList[[Name]]<-bspPosterior(priorList[[Name]], dataList[[Name]])
+      }else{ #if there's no data to augment it, just pass the prior through as the posterior
+        posteriorList[[Name]]<-priorList[[Name]]
+      }
+    }
+  }
+
+  return(posteriorList)
 
 }
 

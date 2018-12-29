@@ -1,14 +1,18 @@
 #' Define a Beta-Stacy Process
 #'
-#' @param support The support where the BSP is defined.
+#' @param support A numeric vector indicating the points at which the support for the BSP is defined
 #' @param centeringMeasure The mean or centering measure of the BSP at each point on the support
 #' or a function that can be evaluated at each point
-#' @param precision The precision can be one of: a scalar to indicate constant precision,
-#'  a vector of equal length to the support indicating precision at each time,
-#'  a function that will be evaluated at each time of the support to obtain the precision
+#' @param precision A constant indicating the precision of the BSP (Currently, the precision
+#' cannot vary over the support).
 #'
 #' @return An object representing a Beta-Stacy Process.
 #' @export
+#'
+#' @details
+#' The most common use case for this function will be defining BSPs to use as priors.
+#' The precision reflects the uncertainty in the prior. In general, a one unit increase
+#' in the precision is equivalent to one additional observation.
 #'
 #' @examples
 #' bsp(support=c(1,5), centeringMeasure=c(0.2,0.4), precision=c(2,1))
