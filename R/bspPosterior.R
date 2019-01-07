@@ -14,6 +14,7 @@
 #'
 bspPosterior <- function(bspPriorObject, data) {
 
+
   # Add checks to ensure the input is valid
   # check bspPriorObject is a bsp object
   # check data has observation times and censoring info (if not then censoring info is assumed??)
@@ -23,44 +24,56 @@ bspPosterior <- function(bspPriorObject, data) {
   #Should we have a "check valid BSP" function?
 
   ####ARRANGING DATA
-
+  data<-data[order(data[,1]),]
+  censor<-data[,2]
+  data<-data[,1]
+  prior<-bspPriorObject
 
   #####COMPUTATION
-  make_calculator<-function(prior_alpha, prior_ts, prior_gs, data, censor){
-    if (any(data!=sort(data)))stop("Data must be sorted (increasing)")
-    m<-function(data, t) sapply(t, FUN=function(x) sum(data>=x))
-    j<-function(data, censor, t) sapply(t, FUN=function(x) sum(censor*(data==x)))
-    prior_g<-function(t)sapply(t, FUN=function(t)c(0,prior_gs)[sum(prior_ts<=t)+1])
-    single_t<-function(t){
-      previous<-unique(data[data<=t & censor])
-      previous<-sort(unique(c(previous, prior_ts[prior_ts<=t])))
-      if(length(previous)==0) {
-        previous=0
-      }
-      prior_at_prev<-prior_alpha(previous)
-      g = 1-prod(1-(prior_at_prev*(prior_g(previous)-prior_g(previous-.00001)) +j(data, censor, previous))/
-                   (prior_at_prev*(1-prior_g(previous-.00001))+m(data, previous)))
-      alpha = (prior_alpha(t)*(1-prior_g(t))+m(data, t)-j(data, censor, t))/(1-g)
+  prior_ts<-prior$support
+  prior_gs<-prior$centeringMeasure
+  prior_precs<-prior$precision
+  if (any(data!=sort(data)))stop("Data must be sorted (increasing)")
+  m<-function(data, t) sapply(t, FUN=function(x) sum(data>=x))
+  j<-function(data, censor, t) sapply(t, FUN=function(x) sum(censor*(data==x)))
+  prior_g<-function(t)sapply(t, FUN=function(t)c(0,prior_gs)[sum(prior_ts<=t)+1])
+  allJumps<-sort(unique(c(prior_ts, data)))
+  precAtJumps<-evaluate_precision2(prior, allJumps)
+  GAtJumps<-prior_g(allJumps)
+  GBeforeJumps<-c(0, GAtJumps[-length(GAtJumps)])
+  allJs<-j(data, censor, allJumps)
+  allMs<-m(data, allJumps)
 
-      return(list(CenteringMeasure=g, Alpha=alpha))
-    }
-    function(ts){
-      a=sapply(ts, FUN=single_t)
-      return(list(centeringMeasures=as.numeric(a[1,]), Precisions=as.numeric(a[2,]), support=ts))
-    }
+  cumulativeProduct = cumprod(1-
+                                ((precAtJumps)*(GAtJumps-GBeforeJumps)+allJs)/
+                                (precAtJumps*(1-GBeforeJumps)+allMs)
+  )
+
+
+
+
+  centeringMeasure = 1-cumulativeProduct
+  isna=F
+  alpha<- (precAtJumps*(1-GAtJumps)+allMs-allJs)/(1-centeringMeasure)
+  if(any(is.na(alpha))){
+    isna=T
+    first.na=which(is.na(alpha))[1]
+    newPoint<-mean(allJumps[(first.na-1):first.na])
+
+    new.alpha<-(evaluate_precision2(prior, newPoint)*(1-prior_g(newPoint))+
+                  m(data, newPoint)-
+                  j(data, censor, newPoint))/
+      (1-centeringMeasure[first.na-1])
   }
-  calc<-make_calculator(function(x)evaluate_precision(bspPriorObject, x), bspPriorObject$support,
-                        bspPriorObject$centeringMeasure, data[,1], data[,2])
+  lastTime=allJumps[length(allJumps)]+1
+  lastAlpha<-(evaluate_precision2(prior, lastTime)*(1-prior_gs[length(prior_gs)]))/#+m(data, lastTime)-j(data, censor, lastTime))/
+    (1-centeringMeasure[length(centeringMeasure)])
+  #measuresAfter<-calc(support+.00001)
+  #precisionAfter<-measuresAfter$Precisions
+  alphaAfter<-c(alpha[-1], lastAlpha)
+  if(isna) alphaAfter[first.na-1]<-new.alpha
+  return(makeBSP(allJumps, centeringMeasure, alphaAfter))
 
-
-  support = unique(sort(c(bspPriorObject$support, data[,1])))
-  newMeasures<-calc(support)
-  centeringMeasure = newMeasures$centeringMeasures
-  alpha<-newMeasures$Precisions
-  precisionAfter<-alpha
-  measuresAfter<-calc(support+.00001)
-  precisionAfter<-measuresAfter$Precisions
-  return(makeBSP(support, centeringMeasure, alpha,precisionAfter))
 
 }
 

@@ -52,24 +52,18 @@ bsp <- function(support, centeringMeasure, precision, calculateMoments=FALSE) {
    # precision <- rep(precision, length(support))
   #}
 
-  precisionAfter=precision
-
   #if (length(precision)!=length(support))stop("precision and support length differ")
 
-  #centeringMeasure<-c(0, centeringMeasure)
-  #support<-c(0, support)
-  #includePoint=rep(c(T,F), 100)[1:length(support)]
-  bsp =makeBSP(support, centeringMeasure, precision, precisionAfter)
+  bsp =makeBSP(support, centeringMeasure, precision)
   if (calculateMoments)
     bsp=E1E2(bsp)
   return(bsp)
 }
 
 #@export
-makeBSP<-function(support, centeringMeasure, precision, precisionAfter){
+makeBSP<-function(support, centeringMeasure, precision){
   structure(list(support=support, centeringMeasure=centeringMeasure,
-                 precisionAt=precision, precisionAfter=precisionAfter,
-                 class="betaStacyProcess"))
+                 precision=precision), class="betaStacyProcess")
 }
 
 #' Evaluate centering measure at specific times
@@ -106,14 +100,17 @@ evaluate_centering_measures<-function(bsp, times){
 
 evaluate_precision<-function(bsp, times){
   support<-bsp$support
-  precisionAt<-bsp$precisionAt
-  precisionAfter<-bsp$precisionAfter
-  sapply(times, FUN=function(time){
-    if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
-      return(0.0001)}else{
-      index<-max(which(time>=support))
-      return(ifelse(time==support[index], precisionAt[index], precisionAfter[index]))
-    }
-  })
+  support[support==0]=-.1
+  precision<-bsp$precision
+
+  sapply(times, FUN=function(t)precision[sum(t>support)][1])
+
+  # sapply(times, FUN=function(time){
+  #   if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
+  #     return(0.0001)}else{
+  #     index<-max(which(time>=support))
+  #     return(ifelse(time==support[index], precisionAt[index], precisionAfter[index]))
+  #   }
+  # })
 }
 

@@ -1,5 +1,5 @@
 ##Tests
-a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2, calculateMoments = T)
+a=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2, calculateMoments = F)
 b=bspSamples(a, 100)
 evaluate_precision(a, seq(.5, 3.5, by=.5))
 
@@ -36,9 +36,9 @@ data<-matrix(c(1, 1,
                2,1,
                3, 1
 ), byrow=T, ncol=2)
-posterior<-bspPosterior(prior, data)
+posterior<-bspPosterior2(prior, data)
 seq(0, 4.5, by=.5)
-evaluate_precision(posterior, seq(0, 4.5, by=.5))
+evaluate_precision2(posterior, seq(0, 4.5, by=.5))
 evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
 E1E2(posterior)
 
@@ -49,9 +49,9 @@ data<-matrix(c(1, 1,
                2,0,
                3, 1
 ), byrow=T, ncol=2)
-posterior<-bspPosterior(prior, data)
+posterior<-bspPosterior2(prior, data)
 seq(0, 4.5, by=.5)
-evaluate_precision(posterior, seq(0, 4.5, by=.5))
+evaluate_precision2(posterior, seq(0, 4.5, by=.5))
 evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
 E1E2(posterior)
 
@@ -62,7 +62,7 @@ data<-matrix(c(1, 1,
                2, 0,
                3, 1
 ), byrow=T, ncol=2)
-posterior<-bspPosterior(prior, data)
+posterior<-bspPosterior2(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
 evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
@@ -71,27 +71,27 @@ E1E2(posterior)
 
 ##Matches what is in the paper
 
-#Example 4 from paper
-prior = bsp(support=c(0,2), c(0,.5), precision=c(1,2))
-data<-matrix(c(1, 1,
-               2,1,
-               2,0,
-               3, 1
-), byrow=T, ncol=2)
-posterior<-bspPosterior(prior, data)
-seq(1.5, 2.5, by=.5)
-evaluate_precision(posterior, seq(1.5, 2.5, by=.5))
-evaluate_centering_measures(posterior,seq(1.5, 2.5, by=.5))
-E1E2(posterior)
-#Experiment: look at the variance of F(T=3) for the cases where there is a censored
-#observation at 2, a fully observed obs at two, and nothing at two
+# #Example 4 from paper
+# prior = bsp(support=c(0,2), c(0,.5), precision=c(1,2))
+# data<-matrix(c(1, 1,
+#                2,1,
+#                2,0,
+#                3, 1
+# ), byrow=T, ncol=2)
+# posterior<-bspPosterior2(prior, data)
+# seq(1.5, 2.5, by=.5)
+# evaluate_precision(posterior, seq(1.5, 2.5, by=.5))
+# evaluate_centering_measures(posterior,seq(1.5, 2.5, by=.5))
+# E1E2(posterior)
+# #Experiment: look at the variance of F(T=3) for the cases where there is a censored
+# #observation at 2, a fully observed obs at two, and nothing at two
 
 ##Example 5 from paper
 prior = bsp(c(0,4), c(0,.9), precision=0)
 data<-matrix(c(1,1,
                2,0,
                3,0), byrow = T, ncol=2)
-posterior<-bspPosterior(prior,data)
+posterior<-bspPosterior2(prior,data)
 
 #Nothing
 prior = bsp(support=c(0,3.5), c(0, ), precision=.1)

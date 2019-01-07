@@ -10,7 +10,7 @@
 #'
 print.betaStacyProcess<-function(x){
   res=data.frame(lapply(x[1:3], FUN=as.numeric))
-  res
+  print(res)
 }
 
 #' Plots a Beta-Stacy process over its support
@@ -27,6 +27,13 @@ print.betaStacyProcess<-function(x){
 plot.betaStacyProcess<- function(x, withConfInt=FALSE) {
 
   data=data.frame(times=x$support, centeringMeasure=x$centeringMeasure)
-  ggplot2::ggplot(data, ggplot2::aes(x=times, y=centeringMeasure))+ggplot2::geom_step()+ggplot2::geom_point()+
-    ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)") #add some precision stuff
+  ggplot2::ggplot(data, ggplot2::aes(x=times, y=centeringMeasure))+
+    ggplot2::geom_step()+ggplot2::geom_point()+
+    ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
+  #add some precision stuff
+}
+
+summary.bspPosteriorList<-function(posteriors){
+  print(names(posteriors))
+  print("This should print some more descriptive statistics")
 }
