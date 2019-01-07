@@ -24,7 +24,7 @@ bspPosterior <- function(bspPriorObject, data) {
   #Should we have a "check valid BSP" function?
 
   ####ARRANGING DATA
-  data<-data[order(data[,1]),]
+  data<-data[order(data[,1]),, drop=F]
   censor<-data[,2]
   data<-data[,1]
   prior<-bspPriorObject

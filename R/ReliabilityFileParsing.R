@@ -1,56 +1,3 @@
-# require(stringr)
-#
-# text=suppressWarnings(readLines("sampleParse.txt"))
-# text=str_replace_all(text, " ", "")
-#
-# #Checks to see if valid
-# if(!all(str_sub(text, 1, 2) %in% c('p(', 'P(', 's(', 'S(')))stop("All expressions must start with P( or S(")
-#
-#
-# #Makes sure the pattern after the opening parenthesis is #,#,#,....):#
-# if(!(all(str_detect(str_sub(text, 3), pattern = "^([a-zA-Z0-9]+,)+[a-zA-Z0-9]+\\):[a-zA-Z0-9]+$"))))
-#   stop("One or more strings did not match definition (eg. P(1,2,3):4)")
-#
-# #http://stla.github.io/stlapblog/posts/Numextract.html
-# Numextract <- function(string){
-#   middle=str_sub(str_extract(string, '\\([a-zA-Z0-9,]+\\)'),2,-2)
-#   unlist(strsplit(middle, ','))
-# }
-#
-# needsBuilt<-str_sub(str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
-# if (length(needsBuilt)!=length(unique(needsBuilt)))stop("Non-unique definitions given to component (check right side of colon for non-unique values)")
-# #Anything is ready if it is not on the RHS of a definition
-# ready<-setdiff(Numextract(text), needsBuilt)
-# #Require list of priors
-# #Require list of data
-#
-# done<-rep(F, length(text))
-# i=0
-# oneChange=FALSE
-# while(any(!done)){
-#   i=i+1
-#   if (i > length(text) &!oneChange)stop("The diagram specified contains circular relationships that makes the model impossible")
-#   else if (i>length(text) &oneChange){
-#     i =1
-#     oneChange=FALSE
-#   }
-#   if (done[i]) next
-#   compNeeded <- Numextract(text[i])
-#   Name<-compNeeded[length(compNeeded)]
-#   compNeeded<-compNeeded[-length(compNeeded)]
-#   if (all(compNeeded%in% ready)){
-#     ##We are ready to perform the computations needed in order to provide the prior for Name
-#     needsBuilt<-setdiff(needsBuilt, Name)
-#     ready<-c(ready, Name)
-#     oneChange=TRUE
-#     done[i]<-TRUE
-#   }
-# }
-
-
-#A set of numbers that is marked as "needsBuilt"--everything that appears after a colon
-#Any numbers not after colon are "ready". Once a merge is done move the number after the colon from needsBuilt to ready
-
 
 #' Estimates system reliability for a specified system.
 #'
@@ -123,6 +70,7 @@
 #' priorList<-list(Engine = bsp(1, .5, 1), GasDelivery=bsp(3,.6, 1))
 #' dataList<-list(Engine=matrix(c(2, 1, 3, 0), byrow=T, nrow=2),
 #' GasDelivery=matrix(c(5, 1, 6, 1), byrow=T, nrow=2))
+#' estimateSystemReliability(file, priorList, dataList)
 estimateSystemReliability<-function(file, priorList, dataList){
 
   require(stringr)

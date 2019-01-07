@@ -26,7 +26,7 @@ print.betaStacyProcess<-function(x){
 #'
 plot.betaStacyProcess<- function(x, withConfInt=FALSE) {
 
-  data=data.frame(times=x$support, centeringMeasure=x$centeringMeasure)
+  data=data.frame(times=x$support[-1], centeringMeasure=x$centeringMeasure[-1])
   ggplot2::ggplot(data, ggplot2::aes(x=times, y=centeringMeasure))+
     ggplot2::geom_step()+ggplot2::geom_point()+
     ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
