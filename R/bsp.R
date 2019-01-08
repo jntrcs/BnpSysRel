@@ -108,7 +108,7 @@ evaluate_precision<-function(bsp, times){
   support[support==0]=-.1
   precision<-bsp$precision
 
-
+  sapply(times, FUN=function(t)precision[sum(t>support)][1])
   # sapply(times, FUN=function(time){
   #   if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
   #     return(0.0001)}else{

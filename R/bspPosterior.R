@@ -38,7 +38,7 @@ bspPosterior <- function(bspPriorObject, data) {
   j<-function(data, censor, t) sapply(t, FUN=function(x) sum(censor*(data==x)))
   prior_g<-function(t)sapply(t, FUN=function(t)c(0,prior_gs)[sum(prior_ts<=t)+1])
   allJumps<-sort(unique(c(prior_ts, data)))
-  precAtJumps<-evaluate_precision2(prior, allJumps)
+  precAtJumps<-evaluate_precision(prior, allJumps)
   GAtJumps<-prior_g(allJumps)
   GBeforeJumps<-c(0, GAtJumps[-length(GAtJumps)])
   allJs<-j(data, censor, allJumps)
@@ -60,13 +60,13 @@ bspPosterior <- function(bspPriorObject, data) {
     first.na=which(is.na(alpha))[1]
     newPoint<-mean(allJumps[(first.na-1):first.na])
 
-    new.alpha<-(evaluate_precision2(prior, newPoint)*(1-prior_g(newPoint))+
+    new.alpha<-(evaluate_precision(prior, newPoint)*(1-prior_g(newPoint))+
                   m(data, newPoint)-
                   j(data, censor, newPoint))/
       (1-centeringMeasure[first.na-1])
   }
   lastTime=allJumps[length(allJumps)]+1
-  lastAlpha<-(evaluate_precision2(prior, lastTime)*(1-prior_gs[length(prior_gs)]))/#+m(data, lastTime)-j(data, censor, lastTime))/
+  lastAlpha<-(evaluate_precision(prior, lastTime)*(1-prior_gs[length(prior_gs)]))/#+m(data, lastTime)-j(data, censor, lastTime))/
     (1-centeringMeasure[length(centeringMeasure)])
   #measuresAfter<-calc(support+.00001)
   #precisionAfter<-measuresAfter$Precisions
@@ -80,22 +80,22 @@ bspPosterior <- function(bspPriorObject, data) {
 
 #'Creates a matrix where each column represents a sampled CDF from the provided BSP
 #'
-#'@param BSP Any BSP object
+#'@param bsp Any bsp object
 #'@param reps Number of samples to draw, default 10000
 #'
 #'@return A matrix. Each column can be plotted against the BSP's support to view a sampled CDF from the BSP
 #'@export
 #'
-bsp_sampling<-function(BSP, reps=10000){
-  draws<-matrix(0,ncol = reps, nrow=length(BSP$support))
-  firstTime<-BSP$support[1]
-  alpha1=BSP$evaluate_alpha(firstTime)*BSP$centeringMeasure[1]
-  beta1=BSP$evaluate_alpha(firstTime)*(1-BSP$centeringMeasure[1])
+bsp_sampling<-function(bsp, reps=10000){
+  draws<-matrix(0,ncol = reps, nrow=length(bsp$support))
+  firstTime<-bsp$support[1]
+  alpha1=evaluate_precision(bsp, firstTime)*bsp$centeringMeasure[1]
+  beta1=evaluate_precision(bsp, firstTime)*(1-bsp$centeringMeasure[1])
   draws[1,]<-rbeta(reps, alpha1, beta1)
-  for (i in 2:length(BSP$support)){
-    prec<-BSP$evaluate_alpha(BSP$support[i])
-    alphak<-prec*(BSP$centeringMeasure[i]-BSP$centeringMeasure[i-1])
-    betak=prec*(1-(BSP$centeringMeasure[i]))
+  for (i in 2:length(bsp$support)){
+    prec<-evaluate_precision(bsp, bsp$support[i])
+    alphak<-prec*(bsp$centeringMeasure[i]-bsp$centeringMeasure[i-1])
+    betak=prec*(1-(bsp$centeringMeasure[i]))
     epsk<-1-draws[i-1,]
     #if (any(epsk>1 | epsk<0))print(i)
     draws[i,]<-draws[i-1,]+rbeta(reps, alphak, betak)*epsk

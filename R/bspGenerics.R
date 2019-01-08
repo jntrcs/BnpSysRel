@@ -24,13 +24,26 @@ print.betaStacyProcess<-function(x){
 #' plot(bsp(c(1,5),c(0.2,0.4),c(2,1)))
 #'
 #'
-plot.betaStacyProcess<- function(x, withConfInt=FALSE) {
+plot.betaStacyProcess<- function(x, withConfInt=FALSE, conf.level=.95) {
 
   data=data.frame(times=x$support[-1], centeringMeasure=x$centeringMeasure[-1])
-  ggplot2::ggplot(data, ggplot2::aes(x=times, y=centeringMeasure))+
+  p=ggplot2::ggplot(data, ggplot2::aes(x=times, y=centeringMeasure))+
     ggplot2::geom_step()+ggplot2::geom_point()+
     ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
   #add some precision stuff
+  if(withConfInt){
+    samples=bsp_sampling(x, reps=1000)[-1,]
+    cred_int=data.frame(lower=apply(samples, 1, quantile, (1-conf.level)/2),
+    upper =apply(samples, 1, quantile, 1-(1-conf.level)/2))
+    p=p+geom_line(data=cred_int, aes(x=x$support[-1],y=lower, color="Credible Interval"))+
+      geom_line(data=cred_int, aes(x=x$support[-1],y=upper, color="Credible Interval"))
+  }
+  return(p)
+}
+
+summary.betaStacyProcess<-function(x){
+  print(paste("Median time to failure:",
+              round(x$support[which.max(which(x$centeringMeasure<=.5))], 3)))
 }
 
 summary.bspPosteriorList<-function(posteriors){
