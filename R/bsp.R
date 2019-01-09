@@ -1,17 +1,21 @@
 #' Define a Beta-Stacy Process
 #'
-#' @param support The support where the BSP is defined.
+#' @param support A numeric vector indicating the points at which the support for the BSP is defined
 #' @param centeringMeasure The mean or centering measure of the BSP at each point on the support
 #' or a function that can be evaluated at each point
-#' @param precision The precision can be one of: a scalar to indicate constant precision,
-#'  a vector of equal length to the support indicating precision at each time,
-#'  a function that will be evaluated at each time of the support to obtain the precision
+#' @param precision A constant indicating the precision of the BSP (Currently, the precision
+#' cannot vary over the support).
 #'
 #' @return An object representing a Beta-Stacy Process.
 #' @export
 #'
+#' @details
+#' The most common use case for this function will be defining BSPs to use as priors.
+#' The precision reflects the uncertainty in the prior. In general, a one unit increase
+#' in the precision is equivalent to one additional observation.
+#'
 #' @examples
-#' bsp(support=c(1,5), centeringMeasure=c(0.2,0.4), precision=c(2,1))
+#' bsp(support=c(1,5), centeringMeasure=c(0.2,0.4), precision=2)
 #'
 #'
 #'
@@ -26,19 +30,23 @@ bsp <- function(support, centeringMeasure, precision, calculateMoments=FALSE) {
   # precision is a nonnegative vector of numeric values and should be the same length as support
   #     if only one number is supplied it is replicated n times
   #    should these be nonincreasing???????
-  if (min(support)!=0){
-    support<-c(0, support)
-    centeringMeasure<-c(0, centeringMeasure)
-  }
-  if (!is.numeric(precision)| length(precision)!=1)
-    stop("Precision must be a single number")
-  precision<-rep(precision, length(support))
-  if (any(!support==sort(support))) stop("support should be an increasing series of time points")
   if (is.function(centeringMeasure)){
     centeringMeasure<-centeringMeasure(support)
   }
+
+  if (is.unsorted(support)) stop("support should be an increasing series of time points")
+
   if (length(centeringMeasure)!=length(support))stop("centeringMeasure and support length differ")
   if(any(centeringMeasure>1 |centeringMeasure<0))stop("All centeringMeasure points must be between 0 and 1")
+
+  if (min(support)!=0){
+    support<-c(0, support)
+    centeringMeasure<-c(0, centeringMeasure)
+  }else if (centeringMeasure[1]!=0)stop("Centering measure cannot be greater than 0 when t=0")
+  if (!is.numeric(precision)| length(precision)!=1)
+    stop("Precision must be a single number")
+  precision<-rep(precision, length(support))
+
   #if (is.function(precision)){
    # precision<-precision(support)
     #if (length(precision)!=length(support))stop("Precision function must evaluate to same length as support")
@@ -48,24 +56,18 @@ bsp <- function(support, centeringMeasure, precision, calculateMoments=FALSE) {
    # precision <- rep(precision, length(support))
   #}
 
-  precisionAfter=precision
-
   #if (length(precision)!=length(support))stop("precision and support length differ")
 
-  #centeringMeasure<-c(0, centeringMeasure)
-  #support<-c(0, support)
-  #includePoint=rep(c(T,F), 100)[1:length(support)]
-  bsp =makeBSP(support, centeringMeasure, precision, precisionAfter)
+  bsp =makeBSP(support, centeringMeasure, precision)
   if (calculateMoments)
     bsp=E1E2(bsp)
   return(bsp)
 }
 
-#@export
-makeBSP<-function(support, centeringMeasure, precision, precisionAfter){
+#'@export
+makeBSP<-function(support, centeringMeasure, precision){
   structure(list(support=support, centeringMeasure=centeringMeasure,
-                 precisionAt=precision, precisionAfter=precisionAfter,
-                 class="betaStacyProcess"))
+                 precision=precision), class="betaStacyProcess")
 }
 
 #' Evaluate centering measure at specific times
@@ -76,7 +78,8 @@ makeBSP<-function(support, centeringMeasure, precision, precisionAfter){
 #' @return A vector of same length as times with the centering measure for each time
 #' @export
 #'
-#'@note The centering measure is considered constant
+#'@note For times in between jumps on the support, the centering measure is
+#'considered equal to its value after the last jump
 #' @examples
 #' evaluate_centering_measure(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
 
@@ -98,18 +101,20 @@ evaluate_centering_measures<-function(bsp, times){
 #' @export
 #'
 #' @examples
-#' evaluate_centering_measure(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
+#' evaluate_precision(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
 
 evaluate_precision<-function(bsp, times){
   support<-bsp$support
-  precisionAt<-bsp$precisionAt
-  precisionAfter<-bsp$precisionAfter
-  sapply(times, FUN=function(time){
-    if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
-      return(0.0001)}else{
-      index<-max(which(time>=support))
-      return(ifelse(time==support[index], precisionAt[index], precisionAfter[index]))
-    }
-  })
+  support[support==0]=-.1
+  precision<-bsp$precision
+
+  sapply(times, FUN=function(t)precision[sum(t>support)][1])
+  # sapply(times, FUN=function(time){
+  #   if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
+  #     return(0.0001)}else{
+  #     index<-max(which(time>=support))
+  #     return(ifelse(time==support[index], precisionAt[index], precisionAfter[index]))
+  #   }
+  # })
 }
 
