@@ -52,8 +52,8 @@ gg_curve<-function(f, lower, upper){
   return(geom_line(data=data, aes(x=x, y=y)))
 }
 
-plot(posteriors$valve)+gg_curve(function(x)pweibull(x, 4,20), 12,25)
+plot(posteriors$valve, withConfInt = T)+gg_curve(function(x)pweibull(x, 4,20), 12,25)
 
-plot(posteriors$generator)+gg_curve(function(x)pchisq(x, 3), 0,8)
+plot(posteriors$generator, withConfInt = T)+gg_curve(function(x)pchisq(x, 3), 0,8)
 
 
