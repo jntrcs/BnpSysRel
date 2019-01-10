@@ -10,14 +10,14 @@ E1E2(bsp)
 \item{bsp}{The bsp object}
 }
 \value{
-bsp with new attribute indicating the second moment
+Vector of second moments that aligns with bsp$support
 }
 \description{
 Calculates the first and second moments of a bsp object at each spot on the support
 }
 \examples{
 bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
-bsp=E1E2(bsp)
-bsp
+bsp$E2=E1E2(bsp)
+bsp$E2
 
 }

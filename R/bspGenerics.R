@@ -32,7 +32,7 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE, conf.level=.95) {
     ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
   #add some precision stuff
   if(withConfInt){
-    samples=bsp_sampling(x, reps=1000)[-1,]
+    samples=bspSampling(x, reps=1000)[-1,]
     cred_int=data.frame(lower=apply(samples, 1, quantile, (1-conf.level)/2),
     upper =apply(samples, 1, quantile, 1-(1-conf.level)/2))
     p=p+geom_line(data=cred_int, aes(x=x$support[-1],y=lower, color="Credible Interval"))+

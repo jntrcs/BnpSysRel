@@ -9,10 +9,10 @@ evaluate_precision(bsp, times)
 \arguments{
 \item{bsp}{A BSP object}
 
-\item{times}{A list of times that the centering measure should be determined for}
+\item{times}{A list of times that the precesion should be determined for}
 }
 \value{
-A vector of same length as times with the centering measure for each time
+A vector of same length as times with the precision for each time
 }
 \description{
 Evaluate precision at specific times

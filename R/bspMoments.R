@@ -5,18 +5,18 @@
 #'
 #' @param bsp The bsp object
 #'
-#' @return bsp with new attribute indicating the second moment
+#' @return Vector of second moments that aligns with bsp$support
 #' @export
 #'
 #' @examples
 #' bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
-#' bsp=E1E2(bsp)
-#' bsp
+#' bsp$E2=E1E2(bsp)
+#' bsp$E2
 #'
 E1E2 <- function(bsp) {
 
   base<-bsp$centeringMeasure
-  prec<-bsp$precisionAt
+  prec<-evaluate_precision(bsp, bsp$support)
   n<-length(base)
   ## Calculate the 2nd Moment
   temp <- ((1-base[-1])*(prec[-1]*(1-base[-1])+1))/
@@ -25,27 +25,28 @@ E1E2 <- function(bsp) {
   #if (any(is.nan(E2)))print(paste("E2 had a NAN", E2))
   #E2[is.nan(E2)] <- 0
 
-  ## Return list E1, E2, and times
-  bsp$E2<-c(0, E2)
-  return(bsp)
+  return(c(0, E2))
 
 }
 
 #' Creates a bsp with given moments at each spot on the support
 #'
-#' @param E1 The first moment
-#' @param E2 The second moment
-#' @param support The times for the first and second moments (all vectors equal length)
+#' @param mList A list with three elements, all equal length, containing the
+#' support, E1, and E2 for the new bsp
 #'
 #' @return A bsp object with those moments
 #' @export
 #'
 #' @examples
-#' bsp=bspFromMoments(c(.2, .4,.8), c(.5, .5, .5), 1:3)
+#' bsp=bspFromMoments(list(c(.2, .4,.8), c(.5, .5, .5), 1:3))
 #' bsp
 #'
 #'
-bspFromMoments <- function(E1, E2, support) {
+bspFromMoments <- function(mList) {
+  print(mList)
+  E2<-mList$E2
+  E1<-mList$E1
+  support<-mList$support
 
   pE1 <- c(0,E1[-length(support)])
   pE2 <- c(0,E2[-length(support)])
@@ -53,10 +54,15 @@ bspFromMoments <- function(E1, E2, support) {
   ## Precision
   prec <- ((pE2-2*pE1+1)*(1-E1)-(E2-2*E1+1)*(1-pE1))/((E2-2*E1+1)*(1-pE1)^2-(pE2-2*pE1+1)*(1-E1)^2)
   ## Return list base, prec, and times
-
-  for (i in 1:length(support)) {if(is.nan(prec[i])) {prec[i]=0
-  print("NAN in bspFromMoments()")}}
-  return(bsp(support, E1, prec, calculateMoments = T))
+  print(prec)
+  prec[1]<-0
+  for (i in 2:length(support)) {
+    if(is.nan(prec[i])) {
+      prec[i]=0
+      warning("NAN in bspFromMoments()")
+      }
+    }
+  return(makeBSP(support, E1, prec, calculateMoments = F))
 
 }
 
@@ -65,41 +71,26 @@ bspFromMoments <- function(E1, E2, support) {
 #varx = b$E2 - b$E1^2
 
 
-################################################################################
-##
-## Find First and Second Moment of Merged BSPs for Components in Series.
-##
-################################################################################
+#' Calculates the first and second moments of the subsystem if bsp1 and bsp2 are in series
+#'
+#' @param bsp1 The first bsp object
+#' @param bsp2 The second bsp object
+#'
+#' @return A list with three elements, all equal length, containing the
+#' support, E1, and E2 for the new bsp
+#' @export
+#'
+
 E1E2_series <- function(bsp1, bsp2) {
 
   times = unique(sort(c(bsp1$support,bsp2$support)))
   n <- length(times)
 
-  new_C1_E1 <- rep(NA,n)
-  new_C1_E2 <- rep(NA,n)
-  for (i in 1:n) {
-    if (length(which(times[i]>=C1_times))>0) {
-      ind <- max(which(times[i]>=C1_times))
-      new_C1_E1[i] <- C1_E1[ind]
-      new_C1_E2[i] <- C1_E2[ind]
-    } else {
-      new_C1_E1[i] <- 0
-      new_C1_E2[i] <- 0
-    }
-  }
+  new_C1_E1 <- evaluate_centering_measures(bsp1, times)
+  new_C1_E2 <- evaluate_second_moment(bsp1, times)
 
-  new_C2_E1 <- rep(NA,n)
-  new_C2_E2 <- rep(NA,n)
-  for (i in 1:n) {
-    if (length(which(times[i]>=C2_times))>0) {
-      ind <- max(which(times[i]>=C2_times))
-      new_C2_E1[i] <- C2_E1[ind]
-      new_C2_E2[i] <- C2_E2[ind]
-    } else {
-      new_C2_E1[i] <- 0
-      new_C2_E2[i] <- 0
-    }
-  }
+  new_C2_E1 <- evaluate_centering_measures(bsp2, times)
+  new_C2_E2 <- evaluate_second_moment(bsp2, times)
 
   E1 <- 1-(1-new_C1_E1)*(1-new_C2_E1)
   #Why are we multiplying by 1-new_c1_E1, page nine seems to say times by the base
@@ -107,56 +98,39 @@ E1E2_series <- function(bsp1, bsp2) {
 
   m <- which.max(E1)
 
-  ## Return list E1, E2, and times
-  return( list("E1" = E1[1:m], "E2" = E2[1:m], "times"= times[1:m]) )
-
+  ## Return list E1, E2, and support
+  return( list("E1" = E1[1:m], "E2" = E2[1:m], "support"= times[1:m]) )
 }
 
-################################################################################
-##
-## Find First and Second Moment of Merged BSPs for Components in Parallel.
-##
-################################################################################
-E1E2_parallel <- function(C1_E1, C1_E2, C1_times, C2_E1, C2_E2, C2_times) {
+#' Calculates the first and second moments of the subsystem if bsp1 and bsp2 are in parallel
+#'
+#' @param bsp1 The first bsp object
+#' @param bsp2 The second bsp object
+#'
+#' @return A list with three elements, all equal length, containing the
+#' support, E1, and E2 for the new bsp
+#' @export
+#'
+E1E2_parallel <- function(bsp1, bsp2) {
 
-  times = unique(sort(c(C1_times,C2_times)))
+  times = unique(sort(c(bsp1$support,bsp2$support)))
   n <- length(times)
 
-  new_C1_E1 <- rep(NA,n)
-  new_C1_E2 <- rep(NA,n)
-  for (i in 1:n) {
-    if (length(which(times[i]>=C1_times))>0) {
-      ind <- max(which(times[i]>=C1_times))
-      new_C1_E1[i] <- C1_E1[ind]
-      new_C1_E2[i] <- C1_E2[ind]
-    } else {
-      new_C1_E1[i] <- 0
-      new_C1_E2[i] <- 0
-    }
-  }
+  new_C1_E1 <- evaluate_centering_measures(bsp1, times)
+  new_C1_E2 <- evaluate_second_moment(bsp1, times)
 
-  new_C2_E1 <- rep(NA,n)
-  new_C2_E2 <- rep(NA,n)
-  for (i in 1:n) {
-    if (length(which(times[i]>=C2_times))>0) {
-      ind <- max(which(times[i]>=C2_times))
-      new_C2_E1[i] <- C2_E1[ind]
-      new_C2_E2[i] <- C2_E2[ind]
-    } else {
-      new_C2_E1[i] <- 0
-      new_C2_E2[i] <- 0
-    }
-  }
+  new_C2_E1 <- evaluate_centering_measures(bsp2, times)
+  new_C2_E2 <- evaluate_second_moment(bsp2, times)
 
   E1 <- new_C1_E1*new_C2_E1
 
   E2 <- new_C1_E2*new_C2_E2
 
-  m <- n-which.min(rev(E1))+1
+  #m <- n-which.min(rev(E1))+1
 
-  if (E1[m]==0 & E2[m]==0)m=m+1
+  #if (E1[m]==0 & E2[m]==0)m=m+1
 
   ## Return list E1, E2, and times
-  return( list("E1" = E1[m:n], "E2" = E2[m:n], "times"= times[m:n]) )
+  return( list("E1" = E1, "E2" = E2, "support"= times) )
 
 }

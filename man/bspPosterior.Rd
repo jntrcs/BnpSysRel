@@ -4,12 +4,16 @@
 \alias{bspPosterior}
 \title{Update a BSP prior with data and return a BSP posterior}
 \usage{
-bspPosterior(bspPriorObject, data)
+bspPosterior(bspPriorObject, data, calculateMoments = TRUE)
 }
 \arguments{
 \item{data}{An nx2 matrix of data the first column are the actual data
 the second column contains the censoring variable
 0 - if right censored 1 - if fully observed}
+
+\item{calculateMoments}{A flag to indicate whether second moments should be
+calculated. If the posterior is a component that will be merged with other components
+this should be TRUE; otherwise, setting to FALSE can save time.}
 
 \item{bspPrior}{The BSP object that defines the BSP prior}
 }

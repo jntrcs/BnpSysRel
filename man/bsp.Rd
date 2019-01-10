@@ -14,6 +14,11 @@ or a function that can be evaluated at each point}
 
 \item{precision}{A constant indicating the precision of the BSP (Currently, the precision
 cannot vary over the support).}
+
+\item{calculateMoments}{This is used to calculate the second moment while
+creating the bsp. The moment is used when merging components with other
+components. If this function is only being used to create a prior, it can
+normally be set to false.}
 }
 \value{
 An object representing a Beta-Stacy Process.

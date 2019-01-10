@@ -4,6 +4,9 @@
 #' @param data An nx2 matrix of data the first column are the actual data
 #'             the second column contains the censoring variable
 #'             0 - if right censored 1 - if fully observed
+#' @param calculateMoments A flag to indicate whether second moments should be
+#' calculated. If the posterior is a component that will be merged with other components
+#' this should be TRUE; otherwise, setting to FALSE can save time.
 #'
 #' @return An object representing a Beta-Stacy Process.
 #' @export
@@ -12,7 +15,7 @@
 #' bsp(c(1,5),c(0.2,0.4),c(2,1))
 #'
 #'
-bspPosterior <- function(bspPriorObject, data) {
+bspPosterior <- function(bspPriorObject, data, calculateMoments=TRUE) {
 
 
   # Add checks to ensure the input is valid
@@ -72,33 +75,9 @@ bspPosterior <- function(bspPriorObject, data) {
   #precisionAfter<-measuresAfter$Precisions
   alphaAfter<-c(alpha[-1], lastAlpha)
   if(isna) alphaAfter[first.na-1]<-new.alpha
-  return(makeBSP(allJumps, centeringMeasure, alphaAfter))
+  return(makeBSP(allJumps, centeringMeasure, alphaAfter, calculateMoments))
 
 
 }
 
 
-#'Creates a matrix where each column represents a sampled CDF from the provided BSP
-#'
-#'@param bsp Any bsp object
-#'@param reps Number of samples to draw, default 10000
-#'
-#'@return A matrix. Each column can be plotted against the BSP's support to view a sampled CDF from the BSP
-#'@export
-#'
-bsp_sampling<-function(bsp, reps=10000){
-  draws<-matrix(0,ncol = reps, nrow=length(bsp$support))
-  firstTime<-bsp$support[1]
-  alpha1=evaluate_precision(bsp, firstTime)*bsp$centeringMeasure[1]
-  beta1=evaluate_precision(bsp, firstTime)*(1-bsp$centeringMeasure[1])
-  draws[1,]<-rbeta(reps, alpha1, beta1)
-  for (i in 2:length(bsp$support)){
-    prec<-evaluate_precision(bsp, bsp$support[i])
-    alphak<-prec*(bsp$centeringMeasure[i]-bsp$centeringMeasure[i-1])
-    betak=prec*(1-(bsp$centeringMeasure[i]))
-    epsk<-1-draws[i-1,]
-    #if (any(epsk>1 | epsk<0))print(i)
-    draws[i,]<-draws[i-1,]+rbeta(reps, alphak, betak)*epsk
-  }
-  draws
-}

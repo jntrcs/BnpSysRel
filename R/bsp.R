@@ -5,6 +5,10 @@
 #' or a function that can be evaluated at each point
 #' @param precision A constant indicating the precision of the BSP (Currently, the precision
 #' cannot vary over the support).
+#' @param calculateMoments This is used to calculate the second moment while
+#' creating the bsp. The moment is used when merging components with other
+#' components. If this function is only being used to create a prior, it can
+#' normally be set to false.
 #'
 #' @return An object representing a Beta-Stacy Process.
 #' @export
@@ -58,16 +62,17 @@ bsp <- function(support, centeringMeasure, precision, calculateMoments=FALSE) {
 
   #if (length(precision)!=length(support))stop("precision and support length differ")
 
-  bsp =makeBSP(support, centeringMeasure, precision)
-  if (calculateMoments)
-    bsp=E1E2(bsp)
-  return(bsp)
+  makeBSP(support, centeringMeasure, precision, calculateMoments)
+
 }
 
 #'@export
-makeBSP<-function(support, centeringMeasure, precision){
-  structure(list(support=support, centeringMeasure=centeringMeasure,
+makeBSP<-function(support, centeringMeasure, precision, calculateMoments){
+  bsp=structure(list(support=support, centeringMeasure=centeringMeasure,
                  precision=precision), class="betaStacyProcess")
+  if (calculateMoments)bsp$E2<-E1E2(bsp)
+  return(bsp)
+
 }
 
 #' Evaluate centering measure at specific times
@@ -95,9 +100,9 @@ evaluate_centering_measures<-function(bsp, times){
 #' Evaluate precision at specific times
 #'
 #' @param bsp A BSP object
-#' @param times A list of times that the centering measure should be determined for
+#' @param times A list of times that the precesion should be determined for
 #'
-#' @return A vector of same length as times with the centering measure for each time
+#' @return A vector of same length as times with the precision for each time
 #' @export
 #'
 #' @examples
@@ -109,12 +114,31 @@ evaluate_precision<-function(bsp, times){
   precision<-bsp$precision
 
   sapply(times, FUN=function(t)precision[sum(t>support)][1])
-  # sapply(times, FUN=function(time){
-  #   if (time<min(support)){warning("Precision not specfied for time < min(support), assumed to be 0")
-  #     return(0.0001)}else{
-  #     index<-max(which(time>=support))
-  #     return(ifelse(time==support[index], precisionAt[index], precisionAfter[index]))
-  #   }
-  # })
+
+}
+
+#' Evaluate second moment at specific times
+#'
+#' @param bsp A BSP object
+#' @param times A list of times that the second moment should be determined for
+#'
+#' @return A vector of same length as times with the second moment for each time
+#' @export
+#'
+#' @examples
+#' evaluate_precision(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
+
+evaluate_second_moment<-function(bsp, times){
+  if(is.null(bsp$E2)){
+    bsp$E2<-E1E2(bsp)
+    warning("Moments for this bsp were not pre-calculated.")
+  }
+  support<-bsp$support
+  E2<-bsp$E2
+  indices<-sapply(times, FUN=function(x)sum(support<=x))
+  sec_mom<-E2[indices]
+  indices[indices!=0]<-sec_mom
+  indices
+
 }
 

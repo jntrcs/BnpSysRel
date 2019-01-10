@@ -158,16 +158,24 @@ estimateSystemReliability<-function(file, priorList, dataList){
     }
     if (done[i]) next
     compNeeded <- wordExtract(text[i])
+    merging_function=ifelse(substr(text[i],1,1)%in%c("S", "s"), E1E2_series, E1E2_parallel)
     Name<-compNeeded[length(compNeeded)]
     compNeeded<-compNeeded[-length(compNeeded)]
     if (all(compNeeded%in% ready)){
       ##We are ready to perform the computations needed in order to provide the prior for Name
 
+      #This handles the case where there are more than two components in the list
+      temp = posteriorList[[compNeeded[[1]]]]
+      for (j in 2:length(compNeeded)){
+        temp<-bspFromMoments(merging_function(temp, posteriorList[[compNeeded[j]]]))
+      }
+
+      priorList[[Name]]<-temp
 
       ###As a placeholder, just create an uninformative prior for each subsystem
       #Remove these lines later
-      if(!is.null(dataList[[Name]])) data<-dataList[[Name]] else data<-matrix(c(1,1), byrow=T, nrow=T)
-      priorList[[Name]]<-createUninformativePrior(data)
+      #if(!is.null(dataList[[Name]])) data<-dataList[[Name]] else data<-matrix(c(1,1), byrow=T, nrow=T)
+      #priorList[[Name]]<-createUninformativePrior(data)
       ####################
 
 

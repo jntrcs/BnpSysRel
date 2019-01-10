@@ -19,14 +19,14 @@ dataList<-list()
 #valve ~ Weibull(4, 10)
 curve(dweibull(x, 4, 20),  xlim=c(0,30))
 set.seed(100)
-valve_data<-rweibull(30, 4, 20)
+valve_data<-rweibull(3000, 4, 20)
 censored<-valve_data>25
 valve_data[censored]<-25
 dataList$valve<-cbind(valve_data, as.numeric(!censored))
 
 #Generator~chisq(3)
 curve(dchisq(x, 3), xlim=c(0,30))
-gen_data<-rchisq(15, 3)
+gen_data<-rchisq(1500, 3)
 g_censored<-gen_data>7
 gen_data[g_censored]<-7
 dataList$generator<-cbind(gen_data, as.numeric(!g_censored))

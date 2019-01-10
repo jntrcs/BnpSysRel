@@ -4,14 +4,11 @@
 \alias{bspFromMoments}
 \title{Creates a bsp with given moments at each spot on the support}
 \usage{
-bspFromMoments(E1, E2, support)
+bspFromMoments(mList)
 }
 \arguments{
-\item{E1}{The first moment}
-
-\item{E2}{The second moment}
-
-\item{support}{The times for the first and second moments (all vectors equal length)}
+\item{mList}{A list with three elements, all equal length, containing the
+support, E1, and E2 for the new bsp}
 }
 \value{
 A bsp object with those moments
@@ -20,7 +17,7 @@ A bsp object with those moments
 Creates a bsp with given moments at each spot on the support
 }
 \examples{
-bsp=bspFromMoments(c(.2, .4,.8), c(.5, .5, .5), 1:3)
+bsp=bspFromMoments(list(c(.2, .4,.8), c(.5, .5, .5), 1:3))
 bsp
 
 

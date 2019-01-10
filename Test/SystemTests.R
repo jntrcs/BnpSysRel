@@ -12,7 +12,7 @@ dataList<-list(Generator = matrix(c(5.9, 1,
                                      40, 0), byrow = T, nrow=2),
                Starter=matrix(c(12, 1), byrow = T, nrow=1))
 
-a=estimateSystemReliability("Test/StarterTestFile.txt", priorList, dataList)
+a=estimateSystemReliability(file="Test/StarterTestFile.txt", priorList, dataList)
 a$Generator
 a$Ignition
 a$PowerSupply
