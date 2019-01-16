@@ -43,7 +43,6 @@ E1E2 <- function(bsp) {
 #'
 #'
 bspFromMoments <- function(mList) {
-  print(mList)
   E2<-mList$E2
   E1<-mList$E1
   support<-mList$support
@@ -54,15 +53,14 @@ bspFromMoments <- function(mList) {
   ## Precision
   prec <- ((pE2-2*pE1+1)*(1-E1)-(E2-2*E1+1)*(1-pE1))/((E2-2*E1+1)*(1-pE1)^2-(pE2-2*pE1+1)*(1-E1)^2)
   ## Return list base, prec, and times
-  print(prec)
-  prec[1]<-0
+  prec<-c(prec[-1], prec[length(prec)]) #check this line
   for (i in 2:length(support)) {
     if(is.nan(prec[i])) {
       prec[i]=0
-      warning("NAN in bspFromMoments()")
+      #warning("NAN in bspFromMoments()")
       }
     }
-  return(makeBSP(support, E1, prec, calculateMoments = F))
+  return(makeBSP(support, E1, prec, calculateMoments = T))
 
 }
 

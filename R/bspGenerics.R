@@ -24,19 +24,35 @@ print.betaStacyProcess<-function(x){
 #' plot(bsp(c(1,5),c(0.2,0.4),c(2,1)))
 #'
 #'
-plot.betaStacyProcess<- function(x, withConfInt=FALSE, conf.level=.95) {
+plot.betaStacyProcess<- function(x, withConfInt=FALSE,
+                                 withPaths=FALSE, conf.level=.95) {
 
   data=data.frame(times=x$support[-1], centeringMeasure=x$centeringMeasure[-1])
-  p=ggplot2::ggplot(data, ggplot2::aes(x=times, y=centeringMeasure))+
-    ggplot2::geom_step()+ggplot2::geom_point()+
+  p=ggplot2::ggplot(data,  ggplot2::aes(x=times, y=centeringMeasure))+
+    ggplot2::geom_step(size=1.5)+ggplot2::geom_point()+
     ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
   #add some precision stuff
   if(withConfInt){
-    samples=bspSampling(x, reps=1000)[-1,]
+    samples=bspSampling(x, reps=1000)
     cred_int=data.frame(lower=apply(samples, 1, quantile, (1-conf.level)/2),
     upper =apply(samples, 1, quantile, 1-(1-conf.level)/2))
-    p=p+geom_line(data=cred_int, aes(x=x$support[-1],y=lower, color="Credible Interval"))+
-      geom_line(data=cred_int, aes(x=x$support[-1],y=upper, color="Credible Interval"))
+    p=p+ggplot2::geom_line(data=cred_int,size=1.5,
+            ggplot2::aes(x=x$support[-1],y=lower, color="Credible Interval"))+
+      ggplot2::geom_line(data=cred_int,size=1.5,
+            ggplot2::aes(x=x$support[-1],y=upper, color="Credible Interval"))
+    if (withPaths){
+      paths=data.frame(samples)
+      p= p+ ggplot2::geom_line(data=paths, aes(y=X1, x=x$support[-1]),
+                        inherit.aes = F,
+                        alpha=.2)
+      for (i in 2:100){
+        p=p+ggplot2::geom_line(data=NULL,
+                               ggplot2::aes_(y=paths[[i]], x=x$support[-1]),
+                              inherit.aes = F,
+                              alpha=.2, show.legend = F)
+        #plot(p)
+      }
+    }
   }
   return(p)
 }

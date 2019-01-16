@@ -16,3 +16,4 @@ a=estimateSystemReliability(file="Test/StarterTestFile.txt", priorList, dataList
 a$Generator
 a$Ignition
 a$PowerSupply
+plot(a$Generator, withConfInt = T, withPaths = T)

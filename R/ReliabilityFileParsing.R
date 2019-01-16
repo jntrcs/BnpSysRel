@@ -32,7 +32,8 @@
 #'\itemize{
 #' \item Each line begins with S( or P( indicating series or parallel, one relationship per line
 #'
-#'\item Components can be uppercase, lowercase, and include numbers, but no special characters.
+#'\item Components can be uppercase, lowercase, and include numbers, but
+#'no special characters (names are case-sensitive).
 #'
 #'\item All relationships must be named by adding a colon and a label after the end of the relationship
 #'
@@ -72,31 +73,33 @@
 #' estimateSystemReliability(file, priorList, dataList)
 estimateSystemReliability<-function(file, priorList, dataList){
 
-  require(stringr)
+
 
   text=suppressWarnings(readLines(file))
   if(length(text)==0)stop("Text file contained 0 elements")
-  text=str_replace_all(text, " ", "")
+  text=stringr::str_replace_all(text, " ", "")
 
   #Checks to see if valid
   if(!all(str_sub(text, 1, 2) %in% c('p(', 'P(', 's(', 'S(')))stop("All expressions must start with P( or S(")
 
 
   #Makes sure the pattern after the opening parenthesis is #,#,#,....):#
-  if(!(all(str_detect(str_sub(text, 3), pattern = "^([a-zA-Z0-9]+,)+[a-zA-Z0-9]+\\):[a-zA-Z0-9]+$"))))
+  if(!(all(stringr::str_detect(stringr::str_sub(text, 3),
+            pattern = "^([a-zA-Z0-9]+,)+[a-zA-Z0-9]+\\):[a-zA-Z0-9]+$"))))
     stop("One or more strings did not meet grammar requirements (eg. P(1,2,3):4)")
 
   #http://stla.github.io/stlapblog/posts/Numextract.html
   wordExtract <- function(string){
-    middle=str_sub(str_extract(string, '\\([a-zA-Z0-9,]+\\)'),2,-2)
+    middle=stringr::str_sub(stringr::str_extract(string,
+                          '\\([a-zA-Z0-9,]+\\)'),2,-2)
     middleWords<-unlist(strsplit(middle, ','))
-    endWord=str_sub(str_extract(string, ":[a-zA-Z0-9]+"), 2, -1)
+    endWord=stringr::str_sub(stringr::str_extract(string, ":[a-zA-Z0-9]+"), 2, -1)
     return(c(middleWords, endWord))
   }
 
   ##The first time through we will see if it is logically defined
   #The 2nd time through we will perform the computations
-  needsBuilt<-str_sub(str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
+  needsBuilt<-stringr::str_sub(stringr::str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
   if (length(needsBuilt)!=length(unique(needsBuilt)))stop("Non-unique definitions given to component (check right side of colon for non-unique values)")
   #Anything is ready if it is not on the RHS of a definition
   ready<-setdiff(wordExtract(text), needsBuilt)
@@ -128,7 +131,7 @@ estimateSystemReliability<-function(file, priorList, dataList){
 
 
   #2nd time through
-  needsBuilt<-str_sub(str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
+  needsBuilt<-stringr::str_sub(stringr::str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
   #Anything is ready if it is not on the RHS of a definition
   ready<-setdiff(wordExtract(text), needsBuilt)
   posteriorList<-list()
@@ -147,7 +150,7 @@ estimateSystemReliability<-function(file, priorList, dataList){
   }
   #Require list of priors
   #Require list of data
-  done<-rep(F, length(text))
+  done<-rep(F, length(text)) #Done matches up with the lines in variable text
   i=0
   oneChange=FALSE
   while(any(!done)){
