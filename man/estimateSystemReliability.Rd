@@ -45,7 +45,8 @@ The following syntax conventions for the file will be enforced:
 \itemize{
 \item Each line begins with S( or P( indicating series or parallel, one relationship per line
 
-\item Components can be uppercase, lowercase, and include numbers, but no special characters.
+\item Components can be uppercase, lowercase, and include numbers, but
+no special characters (names are case-sensitive).
 
 \item All relationships must be named by adding a colon and a label after the end of the relationship
 

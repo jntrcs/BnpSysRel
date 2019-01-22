@@ -73,14 +73,12 @@
 #' estimateSystemReliability(file, priorList, dataList)
 estimateSystemReliability<-function(file, priorList, dataList){
 
-
-
   text=suppressWarnings(readLines(file))
   if(length(text)==0)stop("Text file contained 0 elements")
   text=stringr::str_replace_all(text, " ", "")
 
   #Checks to see if valid
-  if(!all(str_sub(text, 1, 2) %in% c('p(', 'P(', 's(', 'S(')))stop("All expressions must start with P( or S(")
+  if(!all(stringr::str_sub(text, 1, 2) %in% c('p(', 'P(', 's(', 'S(')))stop("All expressions must start with P( or S(")
 
 
   #Makes sure the pattern after the opening parenthesis is #,#,#,....):#

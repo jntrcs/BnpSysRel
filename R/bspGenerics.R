@@ -34,8 +34,8 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
   #add some precision stuff
   if(withConfInt){
     samples=bspSampling(x, reps=1000)
-    cred_int=data.frame(lower=apply(samples, 1, quantile, (1-conf.level)/2),
-    upper =apply(samples, 1, quantile, 1-(1-conf.level)/2))
+    cred_int=data.frame(lower=apply(samples, 1, quantile, (1-conf.level)/2, na.rm=T),
+    upper =apply(samples, 1, quantile, 1-(1-conf.level)/2, na.rm=T))
     p=p+ggplot2::geom_line(data=cred_int,size=1.5,
             ggplot2::aes(x=x$support[-1],y=lower, color="Credible Interval"))+
       ggplot2::geom_line(data=cred_int,size=1.5,
@@ -50,11 +50,11 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
                                ggplot2::aes_(y=paths[[i]], x=x$support[-1]),
                               inherit.aes = F,
                               alpha=.2, show.legend = F)
-        #plot(p)
       }
     }
   }
-  return(p)
+  plot(p)
+  return(invisible(p))
 }
 
 summary.betaStacyProcess<-function(x){

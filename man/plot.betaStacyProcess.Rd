@@ -5,7 +5,7 @@
 \title{Plots a Beta-Stacy process over its support}
 \usage{
 \method{plot}{betaStacyProcess}(x, withConfInt = FALSE,
-  conf.level = 0.95)
+  withPaths = FALSE, conf.level = 0.95)
 }
 \arguments{
 \item{x}{The bsp object to be plotted}
