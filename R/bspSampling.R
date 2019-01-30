@@ -39,6 +39,7 @@ bspSampling<-function(bsp, reps=10000){
 #'
 #'@param bsp The bsp object
 #'@param times Place where you would like confidence intervals
+#'@param conf.level Confidence level
 #'
 #'@note If you intend to call this function multiple times on the same object,
 #'calling bsp$Samples<-bspSampling(bsp) before bspConfint
@@ -51,11 +52,38 @@ bspSampling<-function(bsp, reps=10000){
 #' bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
 #' bspConfint(bsp, 1:3)
 #'
-bspConfint<-function(bsp, times, alpha=.05){
+bspConfint<-function(bsp, times, conf.level=.05){
   if(is.null(bsp$Samples))bsp$Samples<-bspSampling(bsp, reps=1000)
   rows<-sapply(times, FUN=function(time)sum(time>=bsp$support)-1)
   intervals= sapply(rows, FUN=
-        function(row) quantile(bsp$Samples[row, ], c(alpha/2, 1-alpha/2)))
+        function(row) quantile(bsp$Samples[row, ], c(conf.level/2, 1-conf.level/2)))
   intervals[is.na(intervals)]<-0
   intervals
+}
+
+
+#'Finds approximate confidence interval by fitting a beta distribution to the BSP moemnts
+#'
+#'@param bsp The bsp object
+#'@param times Place where you would like confidence intervals
+#'@param conf.level Confidence level desired (default .05)
+#'
+#'
+#'@return A 2xlength(times) matrix with upper and lower bounds of the confidence interval
+#'@export
+#'
+#' @examples
+#' bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
+#' bspConfint2(bsp, 1:3)
+#'
+bspConfint2<-function(bsp,times, conf.level=.05){
+  E1<-evaluate_centering_measures(bsp, times)
+  E2<-evaluate_second_moment(bsp, times)
+  v=E2-E1^2
+  alpha<-E1*(E1*(1-E1)/v-1)
+  beta<-alpha*(1/E1-1)
+  uppers<-qbeta(1-conf.level/2, alpha, beta)
+  lowers<-qbeta(conf.level/2, alpha, beta)
+  return(rbind(lowers,uppers))
+
 }

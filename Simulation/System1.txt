@@ -1,0 +1,3 @@
+S(valve, valve, valve, valve, valve):plumbing
+P(generator, generator):power
+S(plumbing, power):system

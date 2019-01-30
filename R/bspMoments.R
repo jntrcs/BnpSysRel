@@ -57,9 +57,10 @@ bspFromMoments <- function(mList) {
   for (i in 2:length(support)) {
     if(is.nan(prec[i])) {
       prec[i]=0
-      #warning("NAN in bspFromMoments()")
+      warning("NAN in bspFromMoments()")
       }
-    }
+  }
+  #prec[prec>5000 | prec< 0]<-5000
   return(makeBSP(support, E1, prec, calculateMoments = T))
 
 }
@@ -94,6 +95,10 @@ E1E2_series <- function(bsp1, bsp2) {
   #Why are we multiplying by 1-new_c1_E1, page nine seems to say times by the base
   E2 <- 1-2*(1-new_C1_E1)*(1-new_C2_E1)+(1-2*new_C1_E1+new_C1_E2)*(1-2*new_C2_E1+new_C2_E2)
 
+  dups<-duplicated(E1) & duplicated(E2)
+  E1<-E1[!dups]
+  E2<-E2[!dups]
+  times<-times[!dups]
   m <- which.max(E1)
 
   ## Return list E1, E2, and support
@@ -124,6 +129,17 @@ E1E2_parallel <- function(bsp1, bsp2) {
 
   E2 <- new_C1_E2*new_C2_E2
 
+  dups<-duplicated(E1) & duplicated(E2)
+  E1<-E1[!dups]
+  E2<-E2[!dups]
+  times<-times[!dups]
+
+  ExtraZeros=which(E1==0)[-1]
+  if(length(ExtraZeros)>0){
+    E1<-E1[-ExtraZeros]
+    E2<-E2[-ExtraZeros]
+    times<-times[-ExtraZeros]
+  }
   #m <- n-which.min(rev(E1))+1
 
   #if (E1[m]==0 & E2[m]==0)m=m+1
