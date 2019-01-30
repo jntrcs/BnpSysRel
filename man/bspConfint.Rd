@@ -5,12 +5,14 @@
 \title{Finds approximate (simulated) confidence intervals for the percent failed
 at a given time}
 \usage{
-bspConfint(bsp, times, alpha = 0.05)
+bspConfint(bsp, times, conf.level = 0.05)
 }
 \arguments{
 \item{bsp}{The bsp object}
 
 \item{times}{Place where you would like confidence intervals}
+
+\item{conf.level}{Confidence level}
 }
 \value{
 A 2xlength(times) matrix with upper and lower bounds of the confidence interval
