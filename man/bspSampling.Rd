@@ -12,7 +12,10 @@ bspSampling(bsp, reps = 10000)
 \item{reps}{Number of samples to draw, default 10000}
 }
 \value{
-A matrix. Each column can be plotted against the BSP's support to view a sampled CDF from the BSP
+A matrix. Each column can be plotted against
+the BSP's support to view a sampled CDF from the BSP.
+Rownames are the support point for that row. Use samplesAt to
+get extract sampled distribution at single point
 }
 \description{
 Creates a matrix where each column represents a sampled CDF from the provided BSP

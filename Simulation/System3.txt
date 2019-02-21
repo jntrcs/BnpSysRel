@@ -1,0 +1,3 @@
+S(valve1,valve2,valve3,valve4,valve5,valve6,valve7,valve8,valve9,valve10):plumbing
+P(generator1,generator2,generator3,generator4,generator5,generator6,generator7,generator8,generator9,generator10):power
+S(plumbing, power):system

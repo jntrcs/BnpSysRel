@@ -36,8 +36,8 @@ allTimes<-sort(unique(unlist(evaluation_times)))
 valve_prior<-bsp(evaluation_times$valve, pweibull(evaluation_times$valve, 4,20), .2)
 generator_prior<-bsp(evaluation_times$generator, pchisq(evaluation_times$generator,3), .2)
 
-priorList=list(valve1=valve_prior,valve2=valve_prior,valve3=valve_prior,
-               generator1= generator_prior, generator2= generator_prior)
+priorList=list(valve=valve_prior,
+               generator= generator_prior)
 #plot(generator_prior, withConfInt = T, withPaths=T)+gg_ecdf(generators[,1])
 
 true_failure_rates<-list()
@@ -48,10 +48,7 @@ true_failure_rates$power<-sapply(evaluation_times$power, FUN=function(x)mean(pow
 true_failure_rates$system<-sapply(evaluation_times$system, FUN=function(x)mean(system<=x))
 
 results<-list()
-whichNeg<-rep(0, length(true_failure_rates))
-nNeg<-rep(0,3)
-names(whichNeg)<-names(true_failure_rates)
-names(nNeg)<-c('10', '50', '250')
+
 
 set.seed(50)
 
@@ -75,85 +72,72 @@ for (n in ns){
     # sys_cutoff<-quantile(system, c)
     startOn=1
     for(i in startOn:3000){
-    results[[nc]][[cc]][[i]]<-list()
-    dataList<-list()
+      results[[nc]][[cc]][[i]]<-list()
+      dataList<-list()
 
-    if (c){
-      cutoff<-runif(n, startEndValve[1], startEndValve[2])
-      g_cutoff<-runif(n, startEndGen[1], startEndGen[2])
-      plumb_cutoff<-runif(n, startEndPlumbing[1], startEndPlumbing[2])
-      power_cutoff<-runif(n, startEndPower[1], startEndPower[2])
-      sys_cutoff<-runif(n, startEndSystem[1], startEndSystem[2])
+      if (c){
+        cutoff<-runif(n, startEndValve[1], startEndValve[2])
+        g_cutoff<-runif(n, startEndGen[1], startEndGen[2])
+        plumb_cutoff<-runif(n, startEndPlumbing[1], startEndPlumbing[2])
+        power_cutoff<-runif(n, startEndPower[1], startEndPower[2])
+        sys_cutoff<-runif(n, startEndSystem[1], startEndSystem[2])
 
-    }else{
-      cutoff<-g_cutoff<-plumb_cutoff<-power_cutoff<-sys_cutoff<-rep(Inf, n)
-    }
+      }else{
+        cutoff<-g_cutoff<-plumb_cutoff<-power_cutoff<-sys_cutoff<-rep(Inf, n)
+      }
 
-    for (nvalve in 1:3){
-      valve_data<-rweibull(n, 4, 20)
-      censored<-valve_data>cutoff
-      valve_data[censored]<-cutoff[censored]
-      dataList[[paste0("valve", nvalve)]]<-cbind(valve_data, as.numeric(!censored))
-    }
 
-    for (ngen in 1:2){
-      gen_data<-rchisq(n, 3)
-      g_censored<-gen_data>g_cutoff
-      gen_data[g_censored]<-g_cutoff[g_censored]
-      dataList[[paste0("generator", ngen)]]<-cbind(gen_data, as.numeric(!g_censored))
-    }
-    plumb_data<-sample(plumbing, n)
-    p_cens<-plumb_data>plumb_cutoff
-    plumb_data[p_cens]<-plumb_cutoff[p_cens]
-    dataList$plumbing<-cbind(plumb_data, as.numeric(!p_cens))
+        valve_data<-rweibull(n, 4, 20)
+        censored<-valve_data>cutoff
+        valve_data[censored]<-cutoff[censored]
+        dataList[["valve"]]<-cbind(valve_data, as.numeric(!censored))
 
-    power_data<-sample(power, n)
-    pow_cens<-power_data>power_cutoff
-    power_data[pow_cens]<-power_cutoff[pow_cens]
-    dataList$power<-cbind(power_data, as.numeric(!pow_cens))
 
-    sys_data<-sample(system, n)
-    sys_cens<-sys_data>sys_cutoff
-    sys_data[sys_cens]<-sys_cutoff[sys_cens]
-    dataList$system<-cbind(sys_data, as.numeric(!sys_cens))
 
-    posteriors=estimateSystemReliability(file="Simulation/SystemJustParts.txt",
-                                         priorList =priorList,
-                                         dataList = dataList)
+        gen_data<-rchisq(n, 3)
+        g_censored<-gen_data>g_cutoff
+        gen_data[g_censored]<-g_cutoff[g_censored]
+        dataList[["generator"]]<-cbind(gen_data, as.numeric(!g_censored))
 
-    results[[nc]][[cc]][[i]]$Bias<-sapply(names(posteriors), function(part){
-      part=gsub("^|\\d+$", "", part)
-      evaluate_centering_measures(posteriors[[part]], evaluation_times[[part]])-
-                                          true_failure_rates[[part]]})
 
-    results[[nc]][[cc]][[i]]$Coverage<-matrix(0, nrow=3, ncol=length(posteriors))
-    results[[nc]][[cc]][[i]]$Coverage2<-matrix(0, nrow=3, ncol=length(posteriors))
 
-    for (part in names(posteriors)){
-    #   if (any(posteriors[[part]]$precision<0, na.rm =T)){
-    #     whichNeg[names(whichNeg)==part]<-whichNeg[names(whichNeg)==part]+1
-    #     nNeg[names(nNeg)==n]<-nNeg[names(nNeg)==n]+1
-    #     #startOn=i+1
-    #   #  fsdf
-    #   }
-      genericPart=gsub("^|\\d+$", "", part)
-      confint = bspConfint(posteriors[[part]], evaluation_times[[genericPart]])
-      results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))] <-
-        as.numeric(confint[1,]<= true_failure_rates[[genericPart]] &
-                     true_failure_rates[[genericPart]]<= confint[2,])
 
-      #Just using the beta to get confidence intervals.
-      confint2 = bspConfint2(posteriors[[part]], evaluation_times[[genericPart]])
-      results[[nc]][[cc]][[i]]$Coverage2[,which(part==names(posteriors))] <-
-        as.numeric(confint2[1,]<= true_failure_rates[[genericPart]] &
-                     true_failure_rates[[genericPart]]<= confint2[2,])
-      #if (all(results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))]==0))sdkfljsd
-    }
-    #if (mean(results[[nc]][[cc]][[i]]$Coverage)<.5)askldfj
+      posteriors=list(valve=bspPosterior(priorList$valve, dataList$valve),
+                      generator = bspPosterior(priorList$generator, dataList$generator))
+
+      results[[nc]][[cc]][[i]]$Bias<-sapply(names(posteriors), function(part){
+        part=gsub("^|\\d+$", "", part)
+        evaluate_centering_measures(posteriors[[part]], evaluation_times[[part]])-
+          true_failure_rates[[part]]})
+
+      results[[nc]][[cc]][[i]]$Coverage<-matrix(0, nrow=3, ncol=length(posteriors))
+      results[[nc]][[cc]][[i]]$Coverage2<-matrix(0, nrow=3, ncol=length(posteriors))
+
+      for (part in names(posteriors)){
+        #   if (any(posteriors[[part]]$precision<0, na.rm =T)){
+        #     whichNeg[names(whichNeg)==part]<-whichNeg[names(whichNeg)==part]+1
+        #     nNeg[names(nNeg)==n]<-nNeg[names(nNeg)==n]+1
+        #     #startOn=i+1
+        #   #  fsdf
+        #   }
+        genericPart=gsub("^|\\d+$", "", part)
+        confint = bspConfint(posteriors[[part]], evaluation_times[[genericPart]])
+        results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))] <-
+          as.numeric(confint[1,]<= true_failure_rates[[genericPart]] &
+                       true_failure_rates[[genericPart]]<= confint[2,])
+
+        #Just using the beta to get confidence intervals.
+        confint2 = bspConfint2(posteriors[[part]], evaluation_times[[genericPart]])
+        results[[nc]][[cc]][[i]]$Coverage2[,which(part==names(posteriors))] <-
+          as.numeric(confint2[1,]<= true_failure_rates[[genericPart]] &
+                       true_failure_rates[[genericPart]]<= confint2[2,])
+        #if (all(results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))]==0))sdkfljsd
+      }
+      #if (mean(results[[nc]][[cc]][[i]]$Coverage)<.5)askldfj
 
 
     }
-    save(results, file="Simulation/Simulation1SeparateParts.RData")
+    save(results, file="Simulation/JustPartResults.RData")
 
   }
 }

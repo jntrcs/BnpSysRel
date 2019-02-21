@@ -48,7 +48,7 @@ for (n in ns){
     cutoff<-qweibull(c, 4, 20)
     g_cutoff<-qchisq(c, 18)
 
-    for(i in 1:50){
+    for(i in 1:200){
       results[[nc]][[cc]][[i]]<-list()
       dataList<-list()
       valve_data<-rweibull(n, 4, 20)
@@ -81,8 +81,9 @@ for (n in ns){
         #if (all(results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))]==0))sdkfljsd
       }
 
-
     }
+    save(results, file="SimplifiedSimResults.RData")
+
   }
 }
 

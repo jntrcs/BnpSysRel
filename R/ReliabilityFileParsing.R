@@ -169,6 +169,8 @@ estimateSystemReliability<-function(file, priorList, dataList){
       temp = posteriorList[[compNeeded[[1]]]]
       for (j in 2:length(compNeeded)){
         temp<-bspFromMoments(merging_function(temp, posteriorList[[compNeeded[j]]]))
+        #d<<-temp
+        #if(compNeeded[j]=="generator7")skldf
       }
 
       priorList[[Name]]<-temp

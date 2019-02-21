@@ -6,7 +6,10 @@
 #'@param bsp Any bsp object
 #'@param reps Number of samples to draw, default 10000
 #'
-#'@return A matrix. Each column can be plotted against the BSP's support to view a sampled CDF from the BSP
+#'@return A matrix. Each column can be plotted against
+#'the BSP's support to view a sampled CDF from the BSP.
+#'Rownames are the support point for that row. Use samplesAt to
+#'get extract sampled distribution at single point
 #'@export
 #'
 #' @examples
@@ -17,6 +20,7 @@
 #'
 bspSampling<-function(bsp, reps=10000){
   draws<-matrix(0,ncol = reps, nrow=length(bsp$support)-1)
+  rownames(draws)<-bsp$support[-1]
   ##skip the first spot where it's 0
   firstTime<-bsp$support[2]
   alpha1=evaluate_precision(bsp, firstTime)*bsp$centeringMeasure[2]
@@ -59,6 +63,26 @@ bspConfint<-function(bsp, times, conf.level=.05){
         function(row) quantile(bsp$Samples[row, ], c(conf.level/2, 1-conf.level/2)))
   intervals[is.na(intervals)]<-0
   intervals
+}
+
+#'Extract distribution at select point
+#'
+#'@param samples The samples produced by bspSampling()
+#'@param time The spot on the support at which you would like to examine the distribution
+#'
+#'@return A vector of samples drawn from that point on the support
+#'
+#'@export
+#'
+#'@examples
+#'bsp=bsp(1:3, c(.2,.5,.8), 3)
+#'samples=bspSampling(bsp)
+#'marginal = sampleAt(samples, 2.5)
+samplesAt<-function(samples, time){
+  times<-as.numeric(rownames(samples))
+  index<-sum(times<=time)
+  if(index==0)stop("Time less than all of support")
+  return(samples[index,])
 }
 
 

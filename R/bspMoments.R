@@ -53,14 +53,20 @@ bspFromMoments <- function(mList) {
   ## Precision
   prec <- ((pE2-2*pE1+1)*(1-E1)-(E2-2*E1+1)*(1-pE1))/((E2-2*E1+1)*(1-pE1)^2-(pE2-2*pE1+1)*(1-E1)^2)
   ## Return list base, prec, and times
-  prec<-c(prec[-1], prec[length(prec)]) #check this line
-  for (i in 2:length(support)) {
-    if(is.nan(prec[i])) {
-      prec[i]=0
-      warning("NAN in bspFromMoments()")
-      }
+  prec<-c(prec[-1], prec[length(prec)])
+  hasNAs<-is.nan(prec)
+  if (any(hasNAs)){
+    warning("NAN in bspFromMoments()")
+    prec[hasNAs]<-0
   }
-  #prec[prec>5000 | prec< 0]<-5000
+  #for (i in 2:length(support)) {
+   # if(is.nan(prec[i])) {
+    #  prec[i]=0
+     # warning("NAN in bspFromMoments()")
+      #}
+  #}
+  prec[prec>999999999]<-999999999
+  prec[prec<0]<-0
   return(makeBSP(support, E1, prec, calculateMoments = T))
 
 }
@@ -85,13 +91,21 @@ E1E2_series <- function(bsp1, bsp2) {
   times = unique(sort(c(bsp1$support,bsp2$support)))
   n <- length(times)
 
+  #print(bsp1)
+  #print(times)
   new_C1_E1 <- evaluate_centering_measures(bsp1, times)
   new_C1_E2 <- evaluate_second_moment(bsp1, times)
 
   new_C2_E1 <- evaluate_centering_measures(bsp2, times)
   new_C2_E2 <- evaluate_second_moment(bsp2, times)
+  a<<-bsp2
+  b<<-times
 
   E1 <- 1-(1-new_C1_E1)*(1-new_C2_E1)
+
+  #print((new_C1_E1))
+  #print((new_C2_E1))
+
   #Why are we multiplying by 1-new_c1_E1, page nine seems to say times by the base
   E2 <- 1-2*(1-new_C1_E1)*(1-new_C2_E1)+(1-2*new_C1_E1+new_C1_E2)*(1-2*new_C2_E1+new_C2_E2)
 
@@ -99,8 +113,8 @@ E1E2_series <- function(bsp1, bsp2) {
   E1<-E1[!dups]
   E2<-E2[!dups]
   times<-times[!dups]
-  m <- which.max(E1)
-
+  m <- which.max(round(E1, 8))
+  #print(m)
   ## Return list E1, E2, and support
   return( list("E1" = E1[1:m], "E2" = E2[1:m], "support"= times[1:m]) )
 }
@@ -134,7 +148,7 @@ E1E2_parallel <- function(bsp1, bsp2) {
   E2<-E2[!dups]
   times<-times[!dups]
 
-  ExtraZeros=which(E1==0)[-1]
+  ExtraZeros=which(round(E1, 8)==0)[-1]
   if(length(ExtraZeros)>0){
     E1<-E1[-ExtraZeros]
     E2<-E2[-ExtraZeros]
