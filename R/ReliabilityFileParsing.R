@@ -42,6 +42,8 @@
 #' \item A check will be done to ensure there are no circular dependencies among the named components.
 #' For example, Propulsion cannot be used as an input to GasPropulsion because GasPropulsion
 #' is an input to Propulsion
+#'
+#' \item Currently, all component names on the LHS of the diagram must be unique
 #'}
 #'
 #'@section priorList Details:
