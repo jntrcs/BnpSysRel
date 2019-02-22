@@ -69,7 +69,7 @@
 #' write.table("S(Engine, GasDelivery):GasPropulsion", file=file, quote=F, row.names=F, col.names=F)
 #' priorList<-list(Engine = bsp(1, .5, 1), GasDelivery=bsp(3,.6, 1))
 #' dataList<-list(Engine=matrix(c(2, 1, 3, 0), byrow=T, nrow=2),
-#' GasDelivery=matrix(c(5, 1, 6, 1), byrow=T, nrow=2))
+#'     GasDelivery=matrix(c(5, 1, 6, 1), byrow=T, nrow=2))
 #' estimateSystemReliability(file, priorList, dataList)
 estimateSystemReliability<-function(file, priorList, dataList){
 
@@ -84,7 +84,7 @@ estimateSystemReliability<-function(file, priorList, dataList){
   #Makes sure the pattern after the opening parenthesis is #,#,#,....):#
   if(!(all(stringr::str_detect(stringr::str_sub(text, 3),
             pattern = "^([a-zA-Z0-9]+,)+[a-zA-Z0-9]+\\):[a-zA-Z0-9]+$"))))
-    stop("One or more strings did not meet grammar requirements (eg. P(1,2,3):4)")
+    stop("One or more strings did not meet grammar requirements (eg. P(V1,V2,V3):P1)")
 
   #http://stla.github.io/stlapblog/posts/Numextract.html
   wordExtract <- function(string){
@@ -95,14 +95,23 @@ estimateSystemReliability<-function(file, priorList, dataList){
     return(c(middleWords, endWord))
   }
 
+  words<-wordExtract(text)
+
   ##The first time through we will see if it is logically defined
   #The 2nd time through we will perform the computations
   needsBuilt<-stringr::str_sub(stringr::str_extract(text, ":[a-zA-Z0-9]+"), 2, -1)
+
   if (length(needsBuilt)!=length(unique(needsBuilt)))stop("Non-unique definitions given to component (check right side of colon for non-unique values)")
   #Anything is ready if it is not on the RHS of a definition
-  ready<-setdiff(wordExtract(text), needsBuilt)
+  ready<-setdiff(words, needsBuilt)
   #Require list of priors
   #Require list of data
+
+  ####Check to make sure all components only appear once on the LHS of the relations (enforce that data not used twice)
+  counts<-table(words)
+  countIndices<-names(counts)%in% names(table(needsBuilt))
+  if(any(counts[countIndices]>2) | !all(counts[!countIndices]==1))
+    stop("Component names must be unique on LHS of equations")
 
   done<-rep(F, length(text))
   i=0

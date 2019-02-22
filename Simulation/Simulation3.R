@@ -169,3 +169,8 @@ for (i in 2:10){
 for (i in 1:10){
   plot(posteriors[[paste0("generator",i)]])
 }
+
+priorList$generator4
+prior4<-bsp(c(1.005,2.366,4.642, 8, 9, 10), c(.2,.5,.8,.9,.95,.99), 5)
+newgen4<-bspPosterior(prior4, dataList$generator4)
+plot(newgen4)

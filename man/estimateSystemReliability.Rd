@@ -86,6 +86,6 @@ file="ReliabilityDiagram.txt"
 write.table("S(Engine, GasDelivery):GasPropulsion", file=file, quote=F, row.names=F, col.names=F)
 priorList<-list(Engine = bsp(1, .5, 1), GasDelivery=bsp(3,.6, 1))
 dataList<-list(Engine=matrix(c(2, 1, 3, 0), byrow=T, nrow=2),
-GasDelivery=matrix(c(5, 1, 6, 1), byrow=T, nrow=2))
+    GasDelivery=matrix(c(5, 1, 6, 1), byrow=T, nrow=2))
 estimateSystemReliability(file, priorList, dataList)
 }
