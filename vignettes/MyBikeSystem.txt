@@ -1,0 +1,3 @@
+S(BackTire, FrontTire):Tires
+P(BackBrake, FrontBrake):Brakes
+S(Tires, Brakes):Bike

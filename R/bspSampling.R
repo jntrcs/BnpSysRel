@@ -62,6 +62,7 @@ bspConfint<-function(bsp, times, conf.level=.05){
   intervals= sapply(rows, FUN=
         function(row) quantile(bsp$Samples[row, ], c(conf.level/2, 1-conf.level/2)))
   intervals[is.na(intervals)]<-0
+  colnames(intervals)<-times
   intervals
 }
 
