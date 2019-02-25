@@ -2,6 +2,7 @@
 
 S3method(plot,betaStacyProcess)
 S3method(print,betaStacyProcess)
+S3method(quantile,betaStacyProcess)
 export(E1E2)
 export(E1E2_parallel)
 export(E1E2_series)

@@ -107,13 +107,24 @@ bspConfint(posteriors$Bike, times=c(20,50), conf.level = .05)
 
 At t=20 our point estimate for the proportion of bikes that will have failed is 32.84% with a 95% credible interval of (18.1%, 51.7%).
 
-More analysis features to come!
+Similarly we can calculate when we would expect the first 10% and 90% of bikes to have failed by using the quantile function:
+
+```{r}
+quantile(posteriors$Bike, probs=c(.1,.9))
+```
+So 14 months in we expect 10% of the bikes to have failed and 35 months in we expect 90% of the bikes to have failed.
 
 One last function that might be useful is that if you don't have an entire system, but just a single component, you can use the `bspPosterior()` function to calculate one posterior at a time. Its arguments are the same--one prior and one data matrix!
 ```{r}
-FrontTirePosterior=bspPosterior(priorList$FrontTire, dataList$FrontTire)
+BackTirePosterior=bspPosterior(priorList$BackTire, dataList$BackTire)
 ```
 
 
+We can see that they're the same whether regardless of which function we use:
+
+```{r}
+print(posteriors$BackTire)
+print(BackTirePosterior)
+```
 
 

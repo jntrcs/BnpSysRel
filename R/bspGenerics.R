@@ -62,12 +62,29 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
   return(invisible(p))
 }
 
+
+#' Calculates the expected time to failure for various quantiles
+#'
+#'@param bsp The bsp object to calculate from
+#'@param probs numeric vector of probabilities
+#' @return a named numeric vector of times associated with each quantile
+#' @export
+#'
+#'@details This function calculates the expected failure time for a given quantile from
+#'the centering measure of the BSP.
+#' @examples
+#' bsp=bsp(1:3, c(.25,.5,.75), 1)
+#' quantile(bsp, c(.333, .666))
+#'
+quantile.betaStacyProcess<-function(bsp, probs){
+  qs<-sapply(probs, function(p)bsp$support[sum(bsp$centeringMeasure<=p)])
+  names(qs)<-paste0(probs*100,"%")
+  qs
+}
+
 summary.betaStacyProcess<-function(x){
   print(paste("Median time to failure:",
               round(x$support[which.max(which(x$centeringMeasure<=.5))], 3)))
 }
 
-summary.bspPosteriorList<-function(posteriors){
-  print(names(posteriors))
-  print("This should print some more descriptive statistics")
-}
+
