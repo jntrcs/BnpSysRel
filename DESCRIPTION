@@ -4,8 +4,7 @@ Title: Bayesian Non-Parametric Estimates of System Reliability
 Version: 0.1.0
 Author: Richard Warr and Jackson Curtis
 Maintainer: Jackson Curtis <jntrcs@byu.edu>
-Description: This packagae allows estimating system reliability using a Bayesian nonparametric model called the
-beta-Stacy process. See the Masters Project and vignette attached to the repository for more details.
+Description: This packagae allows estimating system reliability using a Bayesian nonparametric model called the beta-Stacy process. See the Masters Project and vignette attached to the repository for more details.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

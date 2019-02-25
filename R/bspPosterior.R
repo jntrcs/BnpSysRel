@@ -18,13 +18,10 @@
 bspPosterior <- function(bspPriorObject, data, calculateMoments=TRUE) {
 
 
-  # Add checks to ensure the input is valid
-  # check bspPriorObject is a bsp object
-  # check data has observation times and censoring info (if not then censoring info is assumed??)
 
+  if(class(bspPriorObject)!="betaStacyProcess")stop("Prior must be class betaStacyProcess")
   ###CHECKS
   if (!is.matrix(data))stop("data must be an nx2 matrix")
-  #Should we have a "check valid BSP" function?
 
   ####ARRANGING DATA
   data<-data[order(data[,1]),, drop=F]

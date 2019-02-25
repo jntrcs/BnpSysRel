@@ -17,7 +17,7 @@ A bsp object with those moments
 Creates a bsp with given moments at each spot on the support
 }
 \examples{
-bsp=bspFromMoments(list(c(.2, .4,.8), c(.5, .5, .5), 1:3))
+bsp=bspFromMoments(list(E1=c(.2, .4,.8), E2=c(.5, .5, .5), support=1:3))
 bsp
 
 

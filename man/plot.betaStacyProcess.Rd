@@ -10,7 +10,11 @@
 \arguments{
 \item{x}{The bsp object to be plotted}
 
-\item{withConfInt}{Currently ignored. Future: If true, will calculate and plot approximate 95\% confidence intervals}
+\item{withConfInt}{If true, will calculate and plot approximate 95\% confidence intervals, default FALSE}
+
+\item{withPaths}{If true, will plot 100 sampled CDFs in gray (must also set withConfInt=T), default FALSE}
+
+\item{conf.level}{Confident level for credible interval, default 0.95}
 }
 \value{
 A ggplot object

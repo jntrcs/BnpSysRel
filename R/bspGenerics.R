@@ -16,7 +16,9 @@ print.betaStacyProcess<-function(x){
 #' Plots a Beta-Stacy process over its support
 #'
 #' @param x The bsp object to be plotted
-#' @param withConfInt Currently ignored. Future: If true, will calculate and plot approximate 95\% confidence intervals
+#' @param withConfInt If true, will calculate and plot approximate 95\% confidence intervals, default FALSE
+#' @param withPaths If true, will plot 100 sampled CDFs in gray (must also set withConfInt=T), default FALSE
+#' @param conf.level Confident level for credible interval, default 0.95
 #' @return A ggplot object
 #' @export
 #'
@@ -26,6 +28,9 @@ print.betaStacyProcess<-function(x){
 #'
 plot.betaStacyProcess<- function(x, withConfInt=FALSE,
                                  withPaths=FALSE, conf.level=.95) {
+
+  if (withPaths &!withConfInt)warning("withPaths ignored if withConfInt set to false")
+  if (conf.level<=0 | conf.level>=1)stop("Confidence must be in (0, 1)")
 
   data=data.frame(times=x$support[-1], centeringMeasure=x$centeringMeasure[-1])
   p=ggplot2::ggplot(data,  ggplot2::aes(x=times, y=centeringMeasure))+

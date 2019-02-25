@@ -38,7 +38,7 @@ E1E2 <- function(bsp) {
 #' @export
 #'
 #' @examples
-#' bsp=bspFromMoments(list(c(.2, .4,.8), c(.5, .5, .5), 1:3))
+#' bsp=bspFromMoments(list(E1=c(.2, .4,.8), E2=c(.5, .5, .5), support=1:3))
 #' bsp
 #'
 #'
@@ -98,8 +98,6 @@ E1E2_series <- function(bsp1, bsp2) {
 
   new_C2_E1 <- evaluate_centering_measures(bsp2, times)
   new_C2_E2 <- evaluate_second_moment(bsp2, times)
-  a<<-bsp2
-  b<<-times
 
   E1 <- 1-(1-new_C1_E1)*(1-new_C2_E1)
 
