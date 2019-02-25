@@ -24,7 +24,8 @@ An object representing a Beta-Stacy Process.
 Update a BSP prior with data and return a BSP posterior
 }
 \examples{
-bsp(c(1,5),c(0.2,0.4),c(2,1))
-
+prior<-bsp(c(1,5),c(0.2,0.4),1)
+data<-matrix(c(5,1,31,2,0), nrow=3, byrow=T)
+bspPosterior(prior, data)
 
 }

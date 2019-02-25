@@ -43,7 +43,7 @@ bspSampling<-function(bsp, reps=10000){
 #'
 #'@param bsp The bsp object
 #'@param times Place where you would like confidence intervals
-#'@param conf.level Confidence level
+#'@param conf.level Alpha level for confidence (default .05)
 #'
 #'@note If you intend to call this function multiple times on the same object,
 #'calling bsp$Samples<-bspSampling(bsp) before bspConfint
@@ -58,6 +58,10 @@ bspSampling<-function(bsp, reps=10000){
 #'
 bspConfint<-function(bsp, times, conf.level=.05){
   if(is.null(bsp$Samples))bsp$Samples<-bspSampling(bsp, reps=1000)
+  if (conf.level<0 |conf.level>1)stop("conf.level must be between 0 and 1")
+  if (conf.level>.6)warning(paste0("Alpha level set to ", conf.level,
+                                   ". Are you sure you didn't mean ",
+                                   1-conf.level,"?"))
   rows<-sapply(times, FUN=function(time)sum(time>=bsp$support)-1)
   intervals= sapply(rows, FUN=
         function(row) quantile(bsp$Samples[row, ], c(conf.level/2, 1-conf.level/2)))
@@ -87,28 +91,17 @@ samplesAt<-function(samples, time){
 }
 
 
-#'Finds approximate confidence interval by fitting a beta distribution to the BSP moemnts
+#' #'Finds approximate confidence interval by fitting a beta distribution to the BSP moemnts
+#' #'
+#' #'
+#' bspConfint2<-function(bsp,times, conf.level=.05){
+#'   E1<-evaluate_centering_measures(bsp, times)
+#'   E2<-evaluate_second_moment(bsp, times)
+#'   v=E2-E1^2
+#'   alpha<-E1*(E1*(1-E1)/v-1)
+#'   beta<-alpha*(1/E1-1)
+#'   uppers<-qbeta(1-conf.level/2, alpha, beta)
+#'   lowers<-qbeta(conf.level/2, alpha, beta)
+#'   return(rbind(lowers,uppers))
 #'
-#'@param bsp The bsp object
-#'@param times Place where you would like confidence intervals
-#'@param conf.level Confidence level desired (default .05)
-#'
-#'
-#'@return A 2xlength(times) matrix with upper and lower bounds of the confidence interval
-#'@export
-#'
-#' @examples
-#' bsp=bsp(c(1:3), centeringMeasure = c(.1,.9, .98), precision = 2)
-#' bspConfint2(bsp, 1:3)
-#'
-bspConfint2<-function(bsp,times, conf.level=.05){
-  E1<-evaluate_centering_measures(bsp, times)
-  E2<-evaluate_second_moment(bsp, times)
-  v=E2-E1^2
-  alpha<-E1*(E1*(1-E1)/v-1)
-  beta<-alpha*(1/E1-1)
-  uppers<-qbeta(1-conf.level/2, alpha, beta)
-  lowers<-qbeta(conf.level/2, alpha, beta)
-  return(rbind(lowers,uppers))
-
-}
+#' }

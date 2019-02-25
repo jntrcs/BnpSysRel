@@ -28,7 +28,8 @@ makeComparison<-function(posterior1, posterior2, time, series=T, location="botto
   ggplot(slice)+geom_density(aes(x=Approx, col="Approx."))+
           geom_density(aes(x=Actual,col="Exact"), linetype=2 )+
           #ggtitle(paste("Marginal at",round(time,2), "in", ifelse(series, "Series", "Parallel")))+
-          xlab("F(X)")+theme(text = element_text(size=19))
+          xlab("F(X)")+theme(text = element_text(size=19))+
+     guides(color=guide_legend(title="Color"))
   # plot(density(approx_dist), main=paste0("Marginal at ", round(time,3), " in ",
   #                                        ifelse(series, "Series", "Parallel")),
   #      xlab="F(T)",cex=15)

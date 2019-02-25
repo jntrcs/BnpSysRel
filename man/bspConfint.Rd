@@ -12,7 +12,7 @@ bspConfint(bsp, times, conf.level = 0.05)
 
 \item{times}{Place where you would like confidence intervals}
 
-\item{conf.level}{Confidence level}
+\item{conf.level}{Alpha level for confidence (default .05)}
 }
 \value{
 A 2xlength(times) matrix with upper and lower bounds of the confidence interval

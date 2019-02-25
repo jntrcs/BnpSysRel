@@ -12,8 +12,9 @@
 #' @export
 #'
 #' @examples
-#' bsp(c(1,5),c(0.2,0.4),c(2,1))
-#'
+#' prior<-bsp(c(1,5),c(0.2,0.4),1)
+#' data<-matrix(c(5,1,31,2,0), nrow=3, byrow=T)
+#' bspPosterior(prior, data)
 #'
 bspPosterior <- function(bspPriorObject, data, calculateMoments=TRUE) {
 
@@ -27,13 +28,14 @@ bspPosterior <- function(bspPriorObject, data, calculateMoments=TRUE) {
   data<-data[order(data[,1]),, drop=F]
   censor<-data[,2]
   data<-data[,1]
+  if (any(data<0))stop("Failure times cannot be negative")
   prior<-bspPriorObject
 
   #####COMPUTATION
   prior_ts<-prior$support
   prior_gs<-prior$centeringMeasure
   prior_precs<-prior$precision
-  if (any(data!=sort(data)))stop("Data must be sorted (increasing)")
+
   m<-function(data, t) sapply(t, FUN=function(x) sum(data>=x))
   j<-function(data, censor, t) sapply(t, FUN=function(x) sum(censor*(data==x)))
   prior_g<-function(t)sapply(t, FUN=function(t)c(0,prior_gs)[sum(prior_ts<=t)+1])
