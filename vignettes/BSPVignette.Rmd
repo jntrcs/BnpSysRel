@@ -30,7 +30,7 @@ P(BackBrake, FrontBrake):Brakes
 S(Tires, Brakes):Bike", file=file, quote=F, row.names=F, col.names=F)
 ```
 
-So what did we just do? The text file contains three lines. Each line will begin either with an S or a P, indicating whether it is specifying a parallel or series relationship. After, the names inside the parenthesis indicate what parts make up the component after the colon, e.g. Tires is made up of BackTire and FrontTire. The syntax is meant to be pretty simple, but the complete grammar rules can be found by reading through `?estimateSystemReliability`.
+So what did we just do? The text file contains three lines. Each line will begin either with an S or a P, indicating whether it is specifying a parallel or series relationship. After, the names inside the parenthesis indicate what parts make up the component after the colon, e.g. Tires is made up of BackTire and FrontTire. The syntax is meant to be pretty simple, but the complete grammar rules can be found by reading through the documentation for `estimateSystemReliability`.
 
 ###The priorList
 So now that we've defined our system, we're done with the first argument to the function. Because our method is Bayesian in nature, the next argument, `priorList` specifies the priors we want to use on the components. Each prior in our model is a beta-Stacy Process, which is how we maintain conjugacy and get beta-Stacy posteriors, and the priorList is just a named list with a bunch of betaStacyProcess objects. So let's look at how to create a betaStacyProcess object:
