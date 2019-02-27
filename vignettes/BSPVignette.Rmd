@@ -4,7 +4,7 @@ author: "Jackson Curtis"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{BnpSysRel Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -122,9 +122,14 @@ BackTirePosterior=bspPosterior(priorList$BackTire, dataList$BackTire)
 
 We can see that they're the same whether regardless of which function we use:
 
-```{r}
-print(posteriors$BackTire)
-print(BackTirePosterior)
+```{r results='hide'}
+t1=print(posteriors$BackTire)
+t2=print(BackTirePosterior)
 ```
+```{r}
+knitr::kable(t1)
+knitr::kable(t2)
+```
+
 
 
