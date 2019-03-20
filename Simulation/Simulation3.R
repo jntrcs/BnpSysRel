@@ -121,7 +121,7 @@ for (n in ns){
 
       results[[nc]][[cc]][[i]]$Bias<-sapply(names(posteriors), function(part){
         part=gsub("^|\\d+$", "", part)
-        evaluate_centering_measures(posteriors[[part]], evaluation_times[[part]])-
+        evaluate_centering_measure(posteriors[[part]], evaluation_times[[part]])-
           true_failure_rates[[part]]})
 
       results[[nc]][[cc]][[i]]$Coverage<-matrix(0, nrow=3, ncol=length(posteriors))

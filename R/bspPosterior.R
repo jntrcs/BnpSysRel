@@ -28,7 +28,7 @@ bspPosterior <- function(bspPriorObject, data, calculateMoments=TRUE) {
   data<-data[order(data[,1]),, drop=F]
   censor<-data[,2]
   data<-data[,1]
-  if (any(data<0))stop("Failure times cannot be negative")
+  if (data[1]<=0)stop("All recorded failure times must be greater than 0")
   prior<-bspPriorObject
 
   #####COMPUTATION

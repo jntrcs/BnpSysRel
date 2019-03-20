@@ -66,7 +66,7 @@ for (n in ns){
                                            dataList = dataList)
 
       results[[nc]][[cc]][[i]]$Bias<-sapply(names(evaluation_times), function(part){
-        evaluate_centering_measures(posteriors[[part]], evaluation_times[[part]])-
+        evaluate_centering_measure(posteriors[[part]], evaluation_times[[part]])-
           true_failure_rates[[part]]})
 
 

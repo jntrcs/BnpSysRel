@@ -9,7 +9,7 @@ plot(a)
 a
 print(a)
 
-evaluate_centering_measures(a, seq(.5, 3.5, by=.5))
+evaluate_centering_measure(a, seq(.5, 3.5, by=.5))
 
 data<-matrix(c(1, 1,
                2.2, 1,
@@ -41,7 +41,7 @@ data<-matrix(c(1, 1,
 posterior<-bspPosterior(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
-evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+evaluate_centering_measure(posterior,seq(0, 4.5, by=.5))
 E1E2(posterior)
 
 #Example 2 from paper
@@ -54,7 +54,7 @@ data<-matrix(c(1, 1,
 posterior<-bspPosterior(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
-evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+evaluate_centering_measure(posterior,seq(0, 4.5, by=.5))
 E1E2(posterior)
 
 ###EXAMPLE 3 FROM OVERLEAF
@@ -67,7 +67,7 @@ data<-matrix(c(1, 1,
 posterior<-bspPosterior(prior, data)
 seq(0, 4.5, by=.5)
 evaluate_precision(posterior, seq(0, 4.5, by=.5))
-evaluate_centering_measures(posterior,seq(0, 4.5, by=.5))
+evaluate_centering_measure(posterior,seq(0, 4.5, by=.5))
 E1E2(posterior)
 
 
@@ -83,7 +83,7 @@ E1E2(posterior)
 # posterior<-bspPosterior2(prior, data)
 # seq(1.5, 2.5, by=.5)
 # evaluate_precision(posterior, seq(1.5, 2.5, by=.5))
-# evaluate_centering_measures(posterior,seq(1.5, 2.5, by=.5))
+# evaluate_centering_measure(posterior,seq(1.5, 2.5, by=.5))
 # E1E2(posterior)
 # #Experiment: look at the variance of F(T=3) for the cases where there is a censored
 # #observation at 2, a fully observed obs at two, and nothing at two

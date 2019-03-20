@@ -93,10 +93,10 @@ E1E2_series <- function(bsp1, bsp2) {
 
   #print(bsp1)
   #print(times)
-  new_C1_E1 <- evaluate_centering_measures(bsp1, times)
+  new_C1_E1 <- evaluate_centering_measure(bsp1, times)
   new_C1_E2 <- evaluate_second_moment(bsp1, times)
 
-  new_C2_E1 <- evaluate_centering_measures(bsp2, times)
+  new_C2_E1 <- evaluate_centering_measure(bsp2, times)
   new_C2_E2 <- evaluate_second_moment(bsp2, times)
 
   E1 <- 1-(1-new_C1_E1)*(1-new_C2_E1)
@@ -131,10 +131,10 @@ E1E2_parallel <- function(bsp1, bsp2) {
   times = unique(sort(c(bsp1$support,bsp2$support)))
   n <- length(times)
 
-  new_C1_E1 <- evaluate_centering_measures(bsp1, times)
+  new_C1_E1 <- evaluate_centering_measure(bsp1, times)
   new_C1_E2 <- evaluate_second_moment(bsp1, times)
 
-  new_C2_E1 <- evaluate_centering_measures(bsp2, times)
+  new_C2_E1 <- evaluate_centering_measure(bsp2, times)
   new_C2_E2 <- evaluate_second_moment(bsp2, times)
 
   E1 <- new_C1_E1*new_C2_E1

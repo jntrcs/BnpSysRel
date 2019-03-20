@@ -15,10 +15,10 @@ for (i in 1:5000){
 data=rexp(10)
 #posterior<-bspPosterior(prior, cbind(data, 1))
 #a=bspConfint(posterior, timePeriod)
-F0<-evaluate_centering_measures(prior, timePeriod)
+F0<-evaluate_centering_measure(prior, timePeriod)
 counts[i]=sum(data<=timePeriod)
-a=qbeta(c(.025,.975), alpha*evaluate_centering_measures(prior, timePeriod) +
-        sum(data<=timePeriod), alpha*(1-evaluate_centering_measures(prior, timePeriod))+
+a=qbeta(c(.025,.975), alpha*evaluate_centering_measure(prior, timePeriod) +
+        sum(data<=timePeriod), alpha*(1-evaluate_centering_measure(prior, timePeriod))+
                             sum(data>timePeriod))
 inInterval[i]<-a[1]<=truth & a[2]>=truth
 }

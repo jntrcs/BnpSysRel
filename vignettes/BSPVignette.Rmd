@@ -98,10 +98,10 @@ The function returns a posterior for every component in the system. We could exp
 plot(posteriors$Bike, withConfInt=TRUE)
 ```
 
-Now we can get a point estimate and credible interval on the percentage of bicycles that will have failed by t=20 and t=50 months using the `evaluate_centering_measures()` and `bspConfint()` functions:
+Now we can get a point estimate and credible interval on the percentage of bicycles that will have failed by t=20 and t=50 months using the `evaluate_centering_measure()` and `bspConfint()` functions:
 
 ```{r}
-evaluate_centering_measures(posteriors$Bike, times=c(20,50))
+evaluate_centering_measure(posteriors$Bike, times=c(20,50))
 bspConfint(posteriors$Bike, times=c(20,50), conf.level = .05)
 ```
 

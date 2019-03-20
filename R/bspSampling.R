@@ -95,7 +95,7 @@ samplesAt<-function(samples, time){
 #' #'
 #' #'
 #' bspConfint2<-function(bsp,times, conf.level=.05){
-#'   E1<-evaluate_centering_measures(bsp, times)
+#'   E1<-evaluate_centering_measure(bsp, times)
 #'   E2<-evaluate_second_moment(bsp, times)
 #'   v=E2-E1^2
 #'   alpha<-E1*(E1*(1-E1)/v-1)

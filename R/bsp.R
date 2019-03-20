@@ -88,7 +88,7 @@ makeBSP<-function(support, centeringMeasure, precision, calculateMoments){
 #' @examples
 #' evaluate_centering_measure(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
 
-evaluate_centering_measures<-function(bsp, times){
+evaluate_centering_measure<-function(bsp, times){
   support<-bsp$support
   centeringMeasure<-bsp$centeringMeasure
   indices<-sapply(times, FUN=function(x)sum(support<=x))
