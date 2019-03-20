@@ -32,6 +32,7 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
     stop("Package \"pkg\" needed for this function to work. Please install it.",
          call. = FALSE)
   }
+
   if (withPaths &!withConfInt)warning("withPaths ignored if withConfInt set to false")
   if (conf.level<=0 | conf.level>=1)stop("Confidence must be in (0, 1)")
 
