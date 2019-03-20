@@ -84,17 +84,18 @@ makeBSP<-function(support, centeringMeasure, precision, calculateMoments){
 #' @export
 #'
 #'@note For times in between jumps on the support, the centering measure is
-#'considered equal to its value after the last jump
+#'linearly interpolated between the most recent jump and the next jump
 #' @examples
 #' evaluate_centering_measure(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
 
 evaluate_centering_measure<-function(bsp, times){
-  support<-bsp$support
-  centeringMeasure<-bsp$centeringMeasure
+  support<-c(bsp$support, Inf)
+  centeringMeasure<-c(bsp$centeringMeasure, 1)
   indices<-sapply(times, FUN=function(x)sum(support<=x))
-  cMeas<-centeringMeasure[indices]
-  indices[indices!=0]<-cMeas
-  indices
+  cMeas_lib<-centeringMeasure[indices]
+  cMeas_cons<-centeringMeasure[indices+1]
+  weights <- (times - support[indices] )/ (support[indices+1]-support[indices])
+  return((1-weights)*cMeas_lib + weights*cMeas_cons)
 }
 
 #' Evaluate precision at specific times

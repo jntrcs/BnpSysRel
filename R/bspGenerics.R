@@ -28,13 +28,16 @@ print.betaStacyProcess<-function(x){
 #'
 plot.betaStacyProcess<- function(x, withConfInt=FALSE,
                                  withPaths=FALSE, conf.level=.95) {
-
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package \"pkg\" needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
   if (withPaths &!withConfInt)warning("withPaths ignored if withConfInt set to false")
   if (conf.level<=0 | conf.level>=1)stop("Confidence must be in (0, 1)")
 
   data=data.frame(times=x$support[-1], centeringMeasure=x$centeringMeasure[-1])
   p=ggplot2::ggplot(data,  ggplot2::aes(x=times, y=centeringMeasure))+
-    ggplot2::geom_step(size=1.5)+ggplot2::geom_point()+
+    ggplot2::geom_line(size=1.5)+ggplot2::geom_point()+
     ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
   #add some precision stuff
   if(withConfInt){
@@ -47,7 +50,7 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
             ggplot2::aes(x=x$support[-1],y=upper, color="Credible Interval"))
     if (withPaths){
       paths=data.frame(samples)
-      p= p+ ggplot2::geom_line(data=paths, aes(y=X1, x=x$support[-1]),
+      p= p+ ggplot2::geom_line(data=paths, ggplot2::aes(y=X1, x=x$support[-1]),
                         inherit.aes = F,
                         alpha=.2)
       for (i in 2:100){
