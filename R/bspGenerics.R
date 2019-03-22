@@ -75,15 +75,25 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
 #' @export
 #'
 #'@details This function calculates the expected failure time for a given quantile from
-#'the centering measure of the BSP.
+#'the centering measure of the BSP. Linear interpolation is to choose time between two discrete points
+#'
 #' @examples
 #' bsp=bsp(1:3, c(.25,.5,.75), 1)
 #' quantile(bsp, c(.333, .666))
-#'
+
 quantile.betaStacyProcess<-function(bsp, probs){
-  qs<-sapply(probs, function(p)bsp$support[sum(bsp$centeringMeasure<=p)])
+  indices<-sapply(probs, function(p)sum(bsp$centeringMeasure<=p))
+  #qs<-sapply(probs, function(p)bsp$support[sum(c(bsp$centeringMeasure,1)<=p)])
+  p1=bsp$centeringMeasure[indices]
+  p2= c(bsp$centeringMeasure,1)[indices+1]
+
+  weights <- (probs-p1)/(p2-p1)
+  qs=(1-weights)*bsp$support[indices] + weights*c(bsp$support,1)[indices+1]
+
   names(qs)<-paste0(probs*100,"%")
   qs
+
+
 }
 
 summary.betaStacyProcess<-function(x){

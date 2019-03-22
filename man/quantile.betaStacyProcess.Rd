@@ -19,10 +19,9 @@ Calculates the expected time to failure for various quantiles
 }
 \details{
 This function calculates the expected failure time for a given quantile from
-the centering measure of the BSP.
+the centering measure of the BSP. Linear interpolation is to choose time between two discrete points
 }
 \examples{
 bsp=bsp(1:3, c(.25,.5,.75), 1)
 quantile(bsp, c(.333, .666))
-
 }
