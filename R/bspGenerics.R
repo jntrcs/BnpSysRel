@@ -48,7 +48,8 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
     p=p+ggplot2::geom_line(data=cred_int,size=1.5,
             ggplot2::aes(x=x$support[-1],y=lower, color="Credible Interval"))+
       ggplot2::geom_line(data=cred_int,size=1.5,
-            ggplot2::aes(x=x$support[-1],y=upper, color="Credible Interval"))
+            ggplot2::aes(x=x$support[-1],y=upper, color="Credible Interval"))+
+      ggplot2::guides(color=ggplot2::guide_legend(title=NULL))
     if (withPaths){
       paths=data.frame(samples)
       p= p+ ggplot2::geom_line(data=paths, ggplot2::aes(y=X1, x=x$support[-1]),

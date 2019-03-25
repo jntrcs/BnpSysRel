@@ -1,2 +1,2 @@
-P(Generator, Generator):PowerSupply
+P(Generator1, Generator2):PowerSupply
 S(PowerSupply, Ignition):Starter
