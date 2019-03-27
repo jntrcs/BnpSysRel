@@ -5,7 +5,7 @@ evaluate_second_moment(a, c(0, .5,1,1.5, 3.5))
 E1E2_series(a, a)
 b=bspSampling(a, 100)
 
-plot(a)
+plot(a, withConfInt = T, withPaths = T)
 a
 print(a)
 
