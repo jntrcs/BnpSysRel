@@ -88,7 +88,7 @@ quantile.betaStacyProcess<-function(bsp, probs){
   p2= c(bsp$centeringMeasure,1)[indices+1]
 
   weights <- (probs-p1)/(p2-p1)
-  qs=(1-weights)*bsp$support[indices] + weights*c(bsp$support,1)[indices+1]
+  qs=(1-weights)*bsp$support[indices] + weights*c(bsp$support,Inf)[indices+1]
 
   names(qs)<-paste0(probs*100,"%")
   qs
