@@ -38,7 +38,7 @@ bspPosterior <- function(bspPriorObject, data, calculateMoments=TRUE) {
 
   m<-function(data, t) sapply(t, FUN=function(x) sum(data>=x))
   j<-function(data, censor, t) sapply(t, FUN=function(x) sum(censor*(data==x)))
-  prior_g<-function(t)evaluate_centering_measure(prior,t)
+  prior_g<-function(t)sapply(t, FUN=function(t)c(0,prior_gs)[sum(prior_ts<=t)+1])
   allJumps<-sort(unique(c(prior_ts, data)))
   precAtJumps<-evaluate_precision(prior, allJumps)
   GAtJumps<-prior_g(allJumps)
