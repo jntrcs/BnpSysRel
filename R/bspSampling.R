@@ -1,6 +1,6 @@
 ##BSPSampling.R
 
-
+#just a test change
 #'Creates a matrix where each column represents a sampled CDF from the provided BSP
 #'
 #'@param bsp Any bsp object
