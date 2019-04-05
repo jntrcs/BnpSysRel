@@ -1,3 +1,3 @@
-S(FrontTire, BackTire):Wheels
-P(FrontBrake, BackBrake):Brakes
-S(Wheels, Brakes, Gears):Bike
+S(valve1, valve2, valve3):plumbing
+P(generator1, generator2):power
+S(plumbing, power):system

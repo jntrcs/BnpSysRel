@@ -68,7 +68,7 @@ hist(a)
 
 require(reshape2)
 require(ggplot2)
-meltedCoverage=melt(coverag2Array)
+meltedCoverage=melt(coverageArray)
 ggplot(meltedCoverage, aes(y=value, x=N, color=Parts, linetype=Censored))+ facet_grid(. ~ Tails)+
   geom_line()+geom_point()+
   geom_hline(aes(yintercept = .95))+

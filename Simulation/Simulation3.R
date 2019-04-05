@@ -72,7 +72,7 @@ for (n in ns){
     # power_cutoff<-quantile(power, c)
     # sys_cutoff<-quantile(system, c)
     startOn=1
-    for(i in startOn:1000){
+    for(i in 2:4){
       results[[nc]][[cc]][[i]]<-list()
       dataList<-list()
 
@@ -125,7 +125,6 @@ for (n in ns){
           true_failure_rates[[part]]})
 
       results[[nc]][[cc]][[i]]$Coverage<-matrix(0, nrow=3, ncol=length(posteriors))
-      results[[nc]][[cc]][[i]]$Coverage2<-matrix(0, nrow=3, ncol=length(posteriors))
 
       for (part in names(posteriors)){
         #   if (any(posteriors[[part]]$precision<0, na.rm =T)){
@@ -140,18 +139,14 @@ for (n in ns){
           as.numeric(confint[1,]<= true_failure_rates[[genericPart]] &
                        true_failure_rates[[genericPart]]<= confint[2,])
 
-        #Just using the beta to get confidence intervals.
-        confint2 = bspConfint2(posteriors[[part]], evaluation_times[[genericPart]])
-        results[[nc]][[cc]][[i]]$Coverage2[,which(part==names(posteriors))] <-
-          as.numeric(confint2[1,]<= true_failure_rates[[genericPart]] &
-                       true_failure_rates[[genericPart]]<= confint2[2,])
+
         #if (all(results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))]==0))sdkfljsd
       }
       #if (mean(results[[nc]][[cc]][[i]]$Coverage)<.5)askldfj
 
 
     }
-    save(results, file="Simulation/Simulation3.RData")
+    #save(results, file="Simulation/Simulation3.RData")
 
   }
 }

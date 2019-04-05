@@ -22,7 +22,7 @@ power<-apply(generators, 1, max)
 system<-pmin(plumbing, power)
 
 ns<-c(10, 50, 250)
-censoring<-c(T, F) #100% of the data and 80% of the data will be uncensored
+censoring<-c(T, F) #100% of the data and 90% of the data will be uncensored
 
 evaluation_times<-list()
 evaluation_times$valve<-qweibull(c(.2,.5,.8), 4, 20)
