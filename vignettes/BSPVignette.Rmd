@@ -36,12 +36,13 @@ So what did we just do? The text file contains three lines. Each line will begin
 So now that we've defined our system, we're done with the first argument to the function. Because our method is Bayesian in nature, the next argument, `priorList` specifies the priors we want to use on the components. Each prior in our model is a beta-Stacy Process, which is how we maintain conjugacy and get beta-Stacy posteriors, and the priorList is just a named list with a bunch of betaStacyProcess objects. So let's look at how to create a betaStacyProcess object:
 
 ```{r}
-tirePrior<-bsp(support = seq(10, 100, length.out = 10),
-               centeringMeasure = seq(.05, .95, length.out = 10),
+times=seq(10, 100, length.out = 10)
+tirePrior<-bsp(support = times,
+               centeringMeasure = pnorm(times, 50, 15),
                precision = 3)
 ```
 
-The `bsp()` function creates betaStacyProcess objects. Again, you'll have to read the paper for the more technical details, but we are basically defining our best guess as to what the CDF of the component should look like, in a discrete way. `support` is the list of jumps we want to see in our prior, `centeringMeasure` is how large those jumps should be, and `precision` is a measure of how certain we are in that CDF. We can look at our prior belief in what the CDF looks like:
+The `bsp()` function creates betaStacyProcess objects. Again, you'll have to read the paper for the more technical details, but we are basically defining our best guess as to what the CDF of the component should look like, in a discrete way. `support` is the list of jumps we want to see in our prior, `centeringMeasure` is how large those jumps should be, and `precision` is a measure of how certain we are in that CDF. In this case we are setting our centering measure to a N(50, $15^2$) distribution, discretized at ten evenly spaced points. This suggests we have a prior belief that our data will have normally distributed failure times with a mean of 50 months, but we are not very certain in that estimate, as can be seen when we plot our prior with:
 
 ```{r fig1, fig.height = 3, fig.width = 5.5, fig.align = "center"}
 plot(tirePrior, withConfInt = T)
