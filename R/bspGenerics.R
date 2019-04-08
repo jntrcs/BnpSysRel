@@ -36,9 +36,12 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
   if (withPaths &!withConfInt)warning("withPaths ignored if withConfInt set to false")
   if (conf.level<=0 | conf.level>=1)stop("Confidence must be in (0, 1)")
 
-  data=data.frame(times=x$support[-1], centeringMeasure=x$centeringMeasure[-1])
-  p=ggplot2::ggplot(data,  ggplot2::aes(x=times, y=centeringMeasure))+
-    ggplot2::geom_step(size=1.5)+ggplot2::geom_point()+
+  data=data.frame(times=x$support[-1])
+  data$centeringMeasureAC=evaluate_centering_measure(x, data$times)
+  data$centeringMeasureC<-evaluate_centering_measure(x, data$times, conservative = T)
+  p=ggplot2::ggplot(data,  ggplot2::aes(x=times, y=centeringMeasureC))+
+    ggplot2::geom_step(aes(y=centeringMeasureAC), size=1.5, direction="hv")+ggplot2::geom_point(size=3)+
+    ggplot2::geom_step(aes(y=centeringMeasureC), size=1.5, direction="vh")+
     ggplot2::xlab("Time (t)")+ggplot2::ylab("Centering Measure G(t)")
   #add some precision stuff
   if(withConfInt){

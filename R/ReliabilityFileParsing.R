@@ -152,9 +152,12 @@ estimateSystemReliability<-function(file, priorList, dataList){
       priorList[[comp]]<-createUninformativePrior(dataList[[comp]])
     }
     if (!is.null(dataList[[comp]])){
-      posteriorList[[comp]]<-bspPosterior(priorList[[comp]], dataList[[comp]])
+      posteriorList[[paste0(comp, "_Conservative")]]<-bspPosterior(priorList[[comp]], dataList[[comp]])
+      posteriorList[[paste0(comp,"_Anticon")]]<-posteriorList[[paste0(comp, "_Conservative")]]
+
     }else{
-      posteriorList[[comp]]<-priorList[[comp]]
+      posteriorList[[paste0(comp, "_Conservative")]]<-posteriorList[[paste0(comp,"_Anticon")]]<-
+        priorList[[comp]]
     }
   }
   #Require list of priors
@@ -177,15 +180,17 @@ estimateSystemReliability<-function(file, priorList, dataList){
       ##We are ready to perform the computations needed in order to provide the prior for Name
 
       #This handles the case where there are more than two components in the list
-      temp = posteriorList[[compNeeded[[1]]]]
+      temp_C = posteriorList[[paste0(compNeeded[1], "_Conservative")]]
+      temp_AC = posteriorList[[paste0(compNeeded[1], "_Anticon")]]
       for (j in 2:length(compNeeded)){
-        temp<-bspFromMoments(merging_function(temp, posteriorList[[compNeeded[j]]]))
+        temp_AC<-bspFromMoments(merging_function(temp_AC, posteriorList[[paste0(compNeeded[1], "_Anticon")]], conservative=F))
+        temp_C<-bspFromMoments(merging_function(temp_C, posteriorList[[paste0(compNeeded[1], "_Conservative")]], conservative=T))
         #d<<-temp
         #if(compNeeded[j]=="generator7")skldf
       }
 
-      priorList[[Name]]<-temp
-
+      priorList[[paste0(Name, "_Conservative")]]<-temp_C
+      priorList[[paste0(Name, "_Anticon")]]<-temp_AC
       ###As a placeholder, just create an uninformative prior for each subsystem
       #Remove these lines later
       #if(!is.null(dataList[[Name]])) data<-dataList[[Name]] else data<-matrix(c(1,1), byrow=T, nrow=T)
@@ -198,9 +203,14 @@ estimateSystemReliability<-function(file, priorList, dataList){
       oneChange=TRUE
       done[i]<-TRUE
       if (!is.null(dataList[[Name]])){
-        posteriorList[[Name]]<-bspPosterior(priorList[[Name]], dataList[[Name]])
+        posteriorList[[paste0(Name, "_Conservative")]]<-
+          bspPosterior(priorList[[paste0(Name, "_Conservative")]], dataList[[Name]])
+        posteriorList[[paste0(Name, "_Anticon")]]<-
+          bspPosterior(priorList[[paste0(Name, "_Anticon")]], dataList[[Name]])
       }else{ #if there's no data to augment it, just pass the prior through as the posterior
-        posteriorList[[Name]]<-priorList[[Name]]
+        posteriorList[[paste0(Name, "_Anticon")]]<-priorList[[paste0(Name, "_Anticon")]]
+        posteriorList[[paste0(Name, "_Conservative")]]<-priorList[[paste0(Name, "_Conservative")]]
+
       }
     }
   }

@@ -70,7 +70,10 @@ bsp <- function(support, centeringMeasure, precision, calculateMoments=FALSE) {
 makeBSP<-function(support, centeringMeasure, precision, calculateMoments){
   bsp=structure(list(support=support, centeringMeasure=centeringMeasure,
                  precision=precision), class="betaStacyProcess")
-  if (calculateMoments)bsp$E2<-E1E2(bsp)
+  if (calculateMoments){
+    bsp$E2_AC<-E1E2(bsp)
+    bsp$E2_C<-E1E2(bsp, conservative = TRUE)
+  }
   return(bsp)
 
 }
@@ -88,13 +91,25 @@ makeBSP<-function(support, centeringMeasure, precision, calculateMoments){
 #' @examples
 #' evaluate_centering_measure(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
 
-evaluate_centering_measure<-function(bsp, times){
+evaluate_centering_measure<-function(bsp, times, conservative=FALSE){
+  if(any(times<0))stop("Failure times must be non-negative")
   support<-bsp$support
   centeringMeasure<-bsp$centeringMeasure
-  indices<-sapply(times, FUN=function(x)sum(support<=x))
-  cMeas<-centeringMeasure[indices]
-  indices[indices!=0]<-cMeas
-  indices
+  if(!conservative){
+    indices<-sapply(times, FUN=function(x)sum(support<=x))
+    cMeas<-centeringMeasure[indices]
+  }
+  if (conservative){
+    jumpIndices<-which(!duplicated(centeringMeasure))
+    cms<-centeringMeasure[jumpIndices]
+    sups<-support[jumpIndices]
+    cMeas<-sapply(times, function(t){
+      c(cms,1)[sum(t>sups)+1]
+    })
+  }
+
+  return(cMeas)
+
 }
 
 #' Evaluate precision at specific times
@@ -128,13 +143,14 @@ evaluate_precision<-function(bsp, times){
 #' @examples
 #' evaluate_precision(bsp(c(1,2), c(.2,.6), 1), c(.5,1.5,2.5))
 
-evaluate_second_moment<-function(bsp, times){
+evaluate_second_moment<-function(bsp, times, conservative=FALSE){
   if(is.null(bsp$E2)){
-    bsp$E2<-E1E2(bsp)
+    bsp$E2_AC<-E1E2(bsp)
+    bsp$E2_C<-E1E2(bsp, conservative = TRUE)
     warning("Moments for this bsp were not pre-calculated.")
   }
   support<-bsp$support
-  E2<-bsp$E2
+  if (conservative)  E2<-bsp$E2_C else E2<-bsp$E2_AC
   indices<-sapply(times, FUN=function(x)sum(support<=x))
   sec_mom<-E2[indices]
   indices[indices!=0]<-sec_mom

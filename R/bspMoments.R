@@ -13,9 +13,9 @@
 #' bsp$E2=E1E2(bsp)
 #' bsp$E2
 #'
-E1E2 <- function(bsp) {
+E1E2 <- function(bsp, conservative=F) {
 
-  base<-bsp$centeringMeasure
+  base<-evaluate_centering_measure(bsp, bsp$support, conservative = conservative)
   prec<-evaluate_precision(bsp, bsp$support)
   n<-length(base)
   ## Calculate the 2nd Moment
@@ -86,18 +86,18 @@ bspFromMoments <- function(mList) {
 #' @export
 #'
 
-E1E2_series <- function(bsp1, bsp2) {
+E1E2_series <- function(bsp1, bsp2, conservative=FALSE) {
 
   times = unique(sort(c(bsp1$support,bsp2$support)))
   n <- length(times)
 
   #print(bsp1)
   #print(times)
-  new_C1_E1 <- evaluate_centering_measure(bsp1, times)
-  new_C1_E2 <- evaluate_second_moment(bsp1, times)
+  new_C1_E1 <- evaluate_centering_measure(bsp1, times, conservative = conservative)
+  new_C1_E2 <- evaluate_second_moment(bsp1, times, conservative = conservative)
 
-  new_C2_E1 <- evaluate_centering_measure(bsp2, times)
-  new_C2_E2 <- evaluate_second_moment(bsp2, times)
+  new_C2_E1 <- evaluate_centering_measure(bsp2, times, conservative = conservative)
+  new_C2_E2 <- evaluate_second_moment(bsp2, times, conservative = conservative)
 
   E1 <- 1-(1-new_C1_E1)*(1-new_C2_E1)
 
@@ -126,16 +126,16 @@ E1E2_series <- function(bsp1, bsp2) {
 #' support, E1, and E2 for the new bsp
 #' @export
 #'
-E1E2_parallel <- function(bsp1, bsp2) {
+E1E2_parallel <- function(bsp1, bsp2, conservative=FALSE) {
 
   times = unique(sort(c(bsp1$support,bsp2$support)))
   n <- length(times)
 
-  new_C1_E1 <- evaluate_centering_measure(bsp1, times)
-  new_C1_E2 <- evaluate_second_moment(bsp1, times)
+  new_C1_E1 <- evaluate_centering_measure(bsp1, times, conservative = conservative)
+  new_C1_E2 <- evaluate_second_moment(bsp1, times, conservative = conservative)
 
-  new_C2_E1 <- evaluate_centering_measure(bsp2, times)
-  new_C2_E2 <- evaluate_second_moment(bsp2, times)
+  new_C2_E1 <- evaluate_centering_measure(bsp2, times, conservative = conservative)
+  new_C2_E2 <- evaluate_second_moment(bsp2, times, conservative = conservative)
 
   E1 <- new_C1_E1*new_C2_E1
 
