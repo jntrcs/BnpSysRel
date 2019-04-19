@@ -107,22 +107,4 @@ ggplot(meltedBias, aes(y=value, x=N, color=Parts,
   #ggsave("Simulation/Sim3Bias.pdf")
 
 
-# ##Appending on the bias results from justParts (fixing the error in Sim2Results.Rdata)
-# load("JustPartResults.RData")
-# biasArrayJP<-array(data=0, dim=c(2, 3, length(ns), length(censoring)),
-#                    dimnames = list(Parts=c("valve","generator"), Tails=c("Left", "Middle", "Right"),
-#                                    N=c(10, 50, 250), Censored=c("FALSE", "TRUE")))
-# isBiasedArrayJP<-array(data=0, dim=c(2, 3, length(ns), length(censoring)),
-#                        dimnames = list(Parts=c("valve","generator"), Tails=c("Left", "Middle", "Right"),
-#                                        N=c(10, 50, 250), Censored=c("FALSE", "TRUE")))
-#
-# extractor<-function(results, measurement, n, cens, part="all", time="all"){
-#   n<-as.character(n)
-#   cens<-as.character(cens)
-#   part_names<-c("valve","generator")
-#   time_names<-c("first", "middle", "last")
-#   if (part=="all") columns=1:5 else columns = which(gsub("^|\\d+$", "", part)==gsub("^|\\d+$", "", part_names))
-#   if (time=="all")rows=1:3 else rows= which(time==time_names)
-#   sapply(results[[n]][[cens]], FUN=function(x)x[[measurement]][rows, columns])
-# }
 
