@@ -46,10 +46,7 @@ true_failure_rates$power<-sapply(evaluation_times$power, FUN=function(x)mean(pow
 true_failure_rates$system<-sapply(evaluation_times$system, FUN=function(x)mean(system<=x))
 
 results<-list()
-whichNeg<-rep(0, length(true_failure_rates))
-nNeg<-rep(0,3)
-names(whichNeg)<-names(true_failure_rates)
-names(nNeg)<-c('10', '50', '250')
+
 
 set.seed(50)
 
@@ -66,11 +63,7 @@ for (n in ns){
       startEndPower<-quantile(power,c(.7,.99))
       startEndSystem<-quantile(system,c(.7,.99))
     }
-    # cutoff<-qweibull(c, 4, 20)
-    # g_cutoff<-qchisq(c, 3)
-    # plumb_cutoff<-quantile(plumbing, c)
-    # power_cutoff<-quantile(power, c)
-    # sys_cutoff<-quantile(system, c)
+
     startOn=1
     for(i in 2:4){
       results[[nc]][[cc]][[i]]<-list()
@@ -120,19 +113,14 @@ for (n in ns){
                                            dataList = dataList)
 
       results[[nc]][[cc]][[i]]$Bias<-sapply(names(posteriors), function(part){
-        part=gsub("^|\\d+$", "", part)
-        evaluate_centering_measure(posteriors[[part]], evaluation_times[[part]])-
-          true_failure_rates[[part]]})
+        genericPart=gsub("^|\\d+$", "", part)
+        evaluate_centering_measure(posteriors[[part]], evaluation_times[[genericPart]])-
+          true_failure_rates[[genericPart]]})
 
       results[[nc]][[cc]][[i]]$Coverage<-matrix(0, nrow=3, ncol=length(posteriors))
 
       for (part in names(posteriors)){
-        #   if (any(posteriors[[part]]$precision<0, na.rm =T)){
-        #     whichNeg[names(whichNeg)==part]<-whichNeg[names(whichNeg)==part]+1
-        #     nNeg[names(nNeg)==n]<-nNeg[names(nNeg)==n]+1
-        #     #startOn=i+1
-        #   #  fsdf
-        #   }
+
         genericPart=gsub("^|\\d+$", "", part)
         confint = bspConfint(posteriors[[part]], evaluation_times[[genericPart]])
         results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))] <-
@@ -140,32 +128,13 @@ for (n in ns){
                        true_failure_rates[[genericPart]]<= confint[2,])
 
 
-        #if (all(results[[nc]][[cc]][[i]]$Coverage[,which(part==names(posteriors))]==0))sdkfljsd
       }
-      #if (mean(results[[nc]][[cc]][[i]]$Coverage)<.5)askldfj
 
 
     }
-    #save(results, file="Simulation/Simulation3.RData")
+    save(results, file="Simulation/Simulation3.RData")
 
   }
 }
 
-#save(results, whichNeg, nNeg, file="Simulation/Simulation1Results.RData")
 
-temp<-posteriors$generator1
-for (i in 2:10){
-  a=E1E2_parallel(temp, posteriors[[paste0("generator",i)]])
-  print(a)
-  temp=bspFromMoments(a)
-  plot(temp)
-}
-
-for (i in 1:10){
-  plot(posteriors[[paste0("generator",i)]])
-}
-
-priorList$generator4
-prior4<-bsp(c(1.005,2.366,4.642, 8, 9, 10), c(.2,.5,.8,.9,.95,.99), 5)
-newgen4<-bspPosterior(prior4, dataList$generator4)
-plot(newgen4)
