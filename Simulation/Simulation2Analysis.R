@@ -81,7 +81,7 @@ ggplot(meltedBias, aes(y=value, x=N, color=Parts,
   ylab("Bias")+geom_hline(yintercept = 0)+ggtitle("Average Bias")+
   scale_x_continuous(breaks=c(10,50, 250),trans="log2")+
   guides(shape=guide_legend(title="MC 95% CI"))+
-  scale_shape_discrete(labels=c("Contains 0", "Does not"))+
-  ggsave("Simulation/Simulation2Bias.pdf", width=5, height=6, units="in")
+  scale_shape_discrete(labels=c("Contains 0", "Does not"))#+
+  #ggsave("Simulation/Simulation2Bias.pdf", width=5, height=6, units="in")
 
 
