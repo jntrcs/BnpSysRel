@@ -1,6 +1,6 @@
 #Simulation2Analysis.R
-require(xtable)
-require(BnpSysRel)
+library(xtable)
+library(BnpSysRel)
 load("./Simulation/Simulation2Results.RData")
 
 coverageArray<-array(data=0, dim=c(5, 3, 3, 2),
@@ -32,7 +32,8 @@ extractor<-function(results, measurement, n, cens, part="all", time="all"){
   sapply(results[[n]][[cens]], FUN=function(x)x[[measurement]][rows, columns])
 }
 
-
+ns<-c(10,50,250)
+censoring=c(T, F)
 #par(ask=T)
 for (n in ns){
   for (c in censoring){
@@ -58,16 +59,16 @@ for (n in ns){
 }
 
 
-require(reshape2)
-require(ggplot2)
+library(reshape2)
+library(ggplot2)
 meltedCoverage=melt(coverageArray)
 meltedCoverage$Significant = abs(meltedCoverage$value-.95)>qnorm(.975)*sqrt(.95*.05/3000)
 ggplot(meltedCoverage, aes(y=value, x=N, color=Parts, linetype=Censored))+ facet_grid(. ~ Tails)+
   geom_line()+#geom_point(aes(shape=Significant))+
   geom_hline(aes(yintercept = .95))+
   scale_x_continuous(breaks=c(10,50, 250),trans="log2")+
-  ylab("Coverage")+ggtitle("Coverage for 95% Credible Intervals")+
-  ggsave("Simulation/Simulation2Coverage.pdf", width=5, height=6, units="in")
+  ylab("Coverage")+ggtitle("Coverage for 95% Credible Intervals")#+
+  #ggsave("Simulation/Simulation2Coverage.pdf", width=5, height=6, units="in")
 
 
 meltedBias=melt(biasArray)
