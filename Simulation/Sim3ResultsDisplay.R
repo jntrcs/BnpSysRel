@@ -1,22 +1,40 @@
-#Sim3ResultsDisplay require(xtable)
-require(BnpSysRel)
+#Sim3ResultsDisplay
+library(xtable)
+library(BnpSysRel)
 load("./Simulation/Simulation3.RData")
 
-coverageArray<-array(data=0, dim=c(length(evaluation_times), 3, length(ns), length(censoring)),
+set.seed(14)
+valves<-replicate(10,rweibull(10000, 4,20))
+generators<-replicate(10, rchisq(10000, 3))
+plumbing<-apply(valves, 1, min)
+power<-apply(generators, 1, max)
+system<-pmin(plumbing, power)
+
+ns<-c(10,50)
+censoring<-c(T, F) #100% of the data and 80% of the data will be uncensored
+
+evaluation_times<-list()
+evaluation_times$valve<-qweibull(c(.2,.5,.8), 4, 20)
+evaluation_times$generator<-qchisq(c(.2,.5,.8),3)
+evaluation_times$plumbing<-quantile(plumbing, c(.2,.5,.8))
+evaluation_times$power<-quantile(power, c(.2,.5,.8))
+evaluation_times$system<-quantile(system, c(.2,.5,.8))
+
+coverageArray<-array(data=0, dim=c(5, 3, 2, 2),
                      dimnames = list(Parts=names(evaluation_times), Tails=c("Left", "Middle", "Right"),
                                      N=c(10, 50), Censored=c("FALSE", "TRUE")))
 
-coverage2Array<-array(data=0, dim=c(length(evaluation_times), 3, length(ns), length(censoring)),
+coverage2Array<-array(data=0, dim=c(5, 3, 2, 2),
                       dimnames = list(Parts=names(evaluation_times), Tails=c("Left", "Middle", "Right"),
                                       N=c(10, 50), Censored=c("FALSE", "TRUE")))
 
-biasArray<-array(data=0, dim=c(length(evaluation_times), 3, length(ns), length(censoring)),
+biasArray<-array(data=0, dim=c(5, 3, 2, 2),
                  dimnames = list(Parts=names(evaluation_times), Tails=c("Left", "Middle", "Right"),
                                  N=c(10, 50), Censored=c("FALSE", "TRUE")))
-isBiasedArray<-array(data=0, dim=c(length(evaluation_times), 3, length(ns), length(censoring)),
+isBiasedArray<-array(data=0, dim=c(5, 3, 2, 2),
                      dimnames = list(Parts=names(evaluation_times), Tails=c("Left", "Middle", "Right"),
                                      N=c(10, 50), Censored=c("FALSE", "TRUE")))
-coverageArray
+#coverageArray
 
 extractor<-function(results, measurement, n, cens, part="all", time="all"){
   n<-as.character(n)
@@ -85,8 +103,8 @@ ggplot(meltedBias, aes(y=value, x=N, color=Parts,
                        linetype=Censored))+ facet_grid(. ~ Tails)+
   geom_line()+geom_point(size=2,aes(shape=factor(Significant)))+
   ylab("Bias")+geom_hline(yintercept = 0)+ggtitle("Average Bias")+
-  guides(shape=guide_legend(title="MC 95% CI"))+scale_shape_discrete(labels=c("Contains 0", "Does not"))+
-  ggsave("Simulation/Sim3Bias.pdf")
+  guides(shape=guide_legend(title="MC 95% CI"))+scale_shape_discrete(labels=c("Contains 0", "Does not"))#+
+  #ggsave("Simulation/Sim3Bias.pdf")
 
 
 # ##Appending on the bias results from justParts (fixing the error in Sim2Results.Rdata)
