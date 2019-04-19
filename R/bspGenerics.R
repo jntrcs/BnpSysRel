@@ -27,9 +27,9 @@ print.betaStacyProcess<-function(x){
 #'
 #'
 plot.betaStacyProcess<- function(x, withConfInt=FALSE,
-                                 withPaths=FALSE, conf.level=.95) {
+                                 withPaths=FALSE, conf.level=.95, withLegend=T) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("Package \"pkg\" needed for this function to work. Please install it.",
+    stop("Package ggplot2 needed for this function to work. Please install it.",
          call. = FALSE)
   }
 
@@ -48,8 +48,9 @@ plot.betaStacyProcess<- function(x, withConfInt=FALSE,
     p=p+ggplot2::geom_line(data=cred_int,size=1.5,
             ggplot2::aes(x=x$support[-1],y=lower, color="Credible Interval"))+
       ggplot2::geom_line(data=cred_int,size=1.5,
-            ggplot2::aes(x=x$support[-1],y=upper, color="Credible Interval"))+
-      ggplot2::guides(color=ggplot2::guide_legend(title=NULL))
+            ggplot2::aes(x=x$support[-1],y=upper, color="Credible Interval"))
+      if (withLegend) p =p+ggplot2::guides(color=ggplot2::guide_legend(title=NULL))
+    if (!withLegend) p=p + ggplot2::theme(legend.position = "none")
     if (withPaths){
       paths=data.frame(samples)
       p= p+ ggplot2::geom_line(data=paths, ggplot2::aes(y=X1, x=x$support[-1]),
